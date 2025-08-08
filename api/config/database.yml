@@ -1,0 +1,24 @@
+# PostgreSQL config for Docker Compose services
+
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  host: <%= ENV.fetch("DB_HOST") { "postgres" } %>
+  port: <%= ENV.fetch("DB_PORT") { 5432 } %>
+  username: <%= ENV.fetch("DB_USER") { "franco" } %>
+  password: <%= ENV.fetch("DB_PASSWORD") { "franco" } %>
+
+development:
+  <<: *default
+  database: franco_development
+
+test:
+  <<: *default
+  database: franco_test
+
+production:
+  <<: *default
+  database: franco_production
+  username: <%= ENV.fetch("DB_USER") { "franco" } %>
+  password: <%= ENV.fetch("DB_PASSWORD") { nil } %>

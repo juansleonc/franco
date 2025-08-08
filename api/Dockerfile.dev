@@ -1,0 +1,16 @@
+# syntax=docker/dockerfile:1
+FROM ruby:3.3.4-alpine
+
+RUN apk add --no-cache bash build-base libpq-dev postgresql-client git tzdata openssl yaml openssh curl
+
+WORKDIR /app
+
+ENV BUNDLE_JOBS=4 BUNDLE_RETRY=3
+
+COPY Gemfile Gemfile.lock ./
+RUN bundle config set without "" && bundle install || true
+
+COPY . .
+
+EXPOSE 3000
+CMD ["sh", "-lc", "bundle install && bin/rails db:prepare && bin/rails s -b 0.0.0.0 -p 3000"]

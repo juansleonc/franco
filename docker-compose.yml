@@ -18,9 +18,11 @@ services:
   api:
     build:
       context: ./api
+      dockerfile: Dockerfile.dev
     environment:
-      DATABASE_URL: postgres://franco:franco@postgres:5432/franco_development
-      REDIS_URL: redis://redis:6379/0
+      DB_HOST: postgres
+      DB_USER: franco
+      DB_PASSWORD: franco
       RAILS_ENV: development
     depends_on:
       - postgres
