@@ -16,6 +16,7 @@ services:
     volumes:
       - redis_data:/data
   api:
+    container_name: api
     build:
       context: ./api
       dockerfile: Dockerfile.dev

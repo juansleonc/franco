@@ -10,9 +10,24 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_08_08_222912) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_08_230312) do
   # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
+  enable_extension "pg_catalog.plpgsql"
+  enable_extension "pgcrypto"
+
+  create_table "suppliers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "name", null: false
+    t.string "tax_id", null: false
+    t.string "email", null: false
+    t.string "phone"
+    t.text "bank_account_ciphertext"
+    t.bigint "created_by_user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_user_id"], name: "index_suppliers_on_created_by_user_id"
+    t.index ["email"], name: "index_suppliers_on_email"
+    t.index ["tax_id"], name: "index_suppliers_on_tax_id", unique: true
+  end
 
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
@@ -25,4 +40,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_08_222912) do
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
+
+  add_foreign_key "suppliers", "users", column: "created_by_user_id"
 end

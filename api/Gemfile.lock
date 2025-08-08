@@ -384,6 +384,7 @@ DEPENDENCIES
   devise-jwt
   factory_bot_rails
   faker
+  json-schema
   lockbox
   lograge
   pagy
