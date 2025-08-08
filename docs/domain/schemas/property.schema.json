@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://franco.app/schemas/property.schema.json",
+  "title": "Property",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "code": { "type": "string" },
+    "type": { "type": "string", "enum": ["house", "apartment", "office", "warehouse", "land"] },
+    "addressLine1": { "type": "string" },
+    "addressLine2": { "type": "string" },
+    "city": { "type": "string" },
+    "state": { "type": "string" },
+    "country": { "type": "string" },
+    "ownerId": { "type": "string", "format": "uuid" },
+    "status": { "type": "string", "enum": ["available", "rented", "maintenance", "inactive"] },
+    "features": {
+      "type": "object",
+      "properties": {
+        "rooms": { "type": "integer" },
+        "bathrooms": { "type": "integer" },
+        "areaM2": { "type": "number" },
+        "parkingSpots": { "type": "integer" },
+        "furnished": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": ["id", "code", "type", "addressLine1", "city", "country", "ownerId", "status"],
+  "additionalProperties": false
+}

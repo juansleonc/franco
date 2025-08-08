@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://franco.app/schemas/payment.schema.json",
+  "title": "Payment",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "payerType": { "type": "string", "enum": ["tenant", "owner"] },
+    "payerId": { "type": "string", "format": "uuid" },
+    "receivedDate": { "type": "string", "format": "date" },
+    "method": { "type": "string", "enum": ["bankTransfer", "cash", "card", "check", "other"] },
+    "reference": { "type": "string" },
+    "amount": { "type": "number", "minimum": 0 },
+    "currency": { "type": "string" },
+    "bankReconciliationId": { "type": "string", "format": "uuid" }
+  },
+  "required": ["id", "payerType", "payerId", "receivedDate", "method", "amount", "currency"],
+  "additionalProperties": false
+}

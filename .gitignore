@@ -1,0 +1,14 @@
+.DS_Store
+node_modules/
+.idea/
+.vscode/
+.env
+.env*
+/tmp
+/log
+coverage/
+api/tmp/
+api/log/
+app/.expo/
+app/.expo-shared/
+app/node_modules/

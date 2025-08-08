@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://franco.app/schemas/owner.schema.json",
+  "title": "Owner",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "fullName": { "type": "string" },
+    "documentType": { "type": "string", "enum": ["nationalId", "passport", "taxId"] },
+    "documentNumber": { "type": "string" },
+    "email": { "type": "string", "format": "email" },
+    "phone": { "type": "string" },
+    "address": { "type": "string" },
+    "bankAccount": { "type": "object" },
+    "notes": { "type": "string" }
+  },
+  "required": ["id", "fullName", "documentType", "documentNumber"],
+  "additionalProperties": false
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://franco.app/schemas/requirement.schema.json",
+  "title": "ClientRequirement",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "title": { "type": "string" },
+    "description": { "type": "string" },
+    "requesterType": { "type": "string", "enum": ["owner", "tenant", "lead"] },
+    "requesterId": { "type": "string", "format": "uuid" },
+    "propertyId": { "type": "string", "format": "uuid" },
+    "contractId": { "type": "string", "format": "uuid" },
+    "status": { "type": "string", "enum": ["new", "inProgress", "blocked", "waiting", "done", "cancelled"] },
+    "priority": { "type": "string", "enum": ["low", "medium", "high", "urgent"] },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" }
+  },
+  "required": ["id", "title", "status", "priority", "createdAt", "updatedAt"],
+  "additionalProperties": false
+}

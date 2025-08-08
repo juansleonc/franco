@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://franco.app/schemas/invoice.schema.json",
+  "title": "Invoice",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "contractId": { "type": "string", "format": "uuid" },
+    "type": { "type": "string", "enum": ["rent", "adminFee", "expenseRecharge", "other"] },
+    "issueDate": { "type": "string", "format": "date" },
+    "dueDate": { "type": "string", "format": "date" },
+    "amount": { "type": "number", "minimum": 0 },
+    "currency": { "type": "string" },
+    "status": { "type": "string", "enum": ["draft", "issued", "partiallyPaid", "paid", "void"] },
+    "lines": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "description": { "type": "string" },
+          "quantity": { "type": "number", "minimum": 0 },
+          "unitPrice": { "type": "number", "minimum": 0 }
+        },
+        "required": ["description", "quantity", "unitPrice"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["id", "contractId", "type", "issueDate", "dueDate", "amount", "currency", "status"],
+  "additionalProperties": false
+}

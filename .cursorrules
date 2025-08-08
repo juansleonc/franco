@@ -1,0 +1,40 @@
+# Global
+- Escribe código claro y mantenible; nombra con sustantivos/verbos completos.
+- Prioriza tests primero en cambios de lógica. Cubre casos borde y errores.
+- Explica "por qué" en PRs y commits; usa mensajes cortos y con propósito.
+- Prefiere cambios pequeños y atómicos; evita mezclar refactors con features.
+- Seguridad por defecto: valida input, evita interpolaciones SQL, sanitiza HTML.
+
+# Rails (api/)
+- Framework de test: RSpec + FactoryBot + Faker.
+- Controladores delgados; lógica en servicios, form objects o interactors.
+- Eager loading para evitar N+1 (usa includes/preload).
+- Migraciones idempotentes; evita datos en migraciones salvo seeds.
+- i18n para textos; `I18n.default_locale = :es`.
+- Linters: RuboCop (incluye rubocop-rails, rubocop-rspec).
+
+# React Native (app/)
+- TypeScript estricto (`"strict": true`); no uses `any`.
+- Estado: React Query para datos remotos; Zustand/Context para UI local.
+- Navegación: React Navigation. Rutas y tipos centralizados.
+- Estilos: StyleSheet o NativeWind; consistencia > preferencia.
+- Tests: Jest + React Native Testing Library; mocks para nativas.
+- Accesibilidad: añade `accessibilityLabel`/roles y prueba con `getByRole`.
+
+# Git/CI
+- Convencional Commits (`feat:`, `fix:`, `chore:`...) orientados al "por qué".
+- No subas secretos; usa `.env` y variables en el CI.
+- Rechaza builds rojos: no mezclar a `main` con CI fallando.
+
+# Observabilidad
+- Loguea eventos clave (IDs, no PII). Maneja errores con niveles.
+- Mide tiempos de respuesta en endpoints críticos.
+
+# Documentación
+- Actualiza `AGENTS.md` y README cuando cambie arquitectura o flujos.
+- Mantén diagramas fuente (PlantUML/Mermaid) versionados.
+
+# Estilo de Respuestas del Asistente
+- Responde en español, pero nombra código en inglés.
+- Sé conciso por defecto; muestra bloques de código mínimos y ejecutables.
+- Antes de editar, busca contexto relacionado; después, corre tests.

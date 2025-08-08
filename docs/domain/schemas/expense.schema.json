@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://franco.app/schemas/expense.schema.json",
+  "title": "Expense",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "propertyId": { "type": "string", "format": "uuid" },
+    "contractId": { "type": "string", "format": "uuid" },
+    "supplierId": { "type": "string", "format": "uuid" },
+    "category": { "type": "string" },
+    "description": { "type": "string" },
+    "issueDate": { "type": "string", "format": "date" },
+    "amount": { "type": "number", "minimum": 0 },
+    "currency": { "type": "string" },
+    "attachmentUrl": { "type": "string", "format": "uri" },
+    "approvalStatus": { "type": "string", "enum": ["pending", "approved", "rejected"] }
+  },
+  "required": ["id", "propertyId", "supplierId", "category", "description", "issueDate", "amount", "currency", "approvalStatus"],
+  "additionalProperties": false
+}
