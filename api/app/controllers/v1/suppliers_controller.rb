@@ -21,11 +21,11 @@ module V1
     def import
       authorize Supplier, :import?
       if params[:file].blank?
-        return render json: { error: 'file_missing' }, status: :bad_request
+        return render json: { error: "file_missing" }, status: :bad_request
       end
       importer = Suppliers::CsvImporter.new(current_user: current_user)
-      result = importer.call(io: params[:file].tempfile, dry_run: params[:dry_run] != 'false')
-      render json: { imported: result.imported, rejected: result.rejected, errors: result.errors }
+      result = importer.call(io: params[:file].tempfile, dry_run: params[:dry_run] != "false", col_sep: params[:col_sep] || ",", generate_error_csv: params[:generate_error_csv] == "true")
+      render json: { imported: result.imported, rejected: result.rejected, errors: result.errors, errorCsv: result.error_csv }
     end
 
     private

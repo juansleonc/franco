@@ -15,7 +15,7 @@ RSpec.describe "V1::Suppliers import", type: :request do
       Proveedor 1,TAX1,p1@example.com,111
       Proveedor 2,TAX2,p2@example.com,222
     CSV
-    file = Tempfile.new(["suppliers", ".csv"]).tap { |f| f.write(csv); f.rewind }
+    file = Tempfile.new([ "suppliers", ".csv" ]).tap { |f| f.write(csv); f.rewind }
 
     post "/v1/suppliers/import", headers: auth_headers, params: { file: Rack::Test::UploadedFile.new(file.path, 'text/csv'), dry_run: 'true' }
     expect(response).to have_http_status(:ok)
@@ -34,7 +34,7 @@ RSpec.describe "V1::Suppliers import", type: :request do
       Proveedor 1,TAX1,new1@example.com
       Proveedor 3,TAX3,p3@example.com
     CSV
-    file = Tempfile.new(["suppliers", ".csv"]).tap { |f| f.write(csv); f.rewind }
+    file = Tempfile.new([ "suppliers", ".csv" ]).tap { |f| f.write(csv); f.rewind }
 
     post "/v1/suppliers/import", headers: auth_headers, params: { file: Rack::Test::UploadedFile.new(file.path, 'text/csv'), dry_run: 'false' }
     expect(response).to have_http_status(:ok)
@@ -49,7 +49,7 @@ RSpec.describe "V1::Suppliers import", type: :request do
       legalName,taxId,email
       ,MISSING_NAME,invalid-email
     CSV
-    file = Tempfile.new(["suppliers", ".csv"]).tap { |f| f.write(csv); f.rewind }
+    file = Tempfile.new([ "suppliers", ".csv" ]).tap { |f| f.write(csv); f.rewind }
 
     post "/v1/suppliers/import", headers: auth_headers, params: { file: Rack::Test::UploadedFile.new(file.path, 'text/csv'), dry_run: 'true', generate_error_csv: 'true' }
     expect(response).to have_http_status(:ok)

@@ -30,11 +30,9 @@ RSpec.describe "V1::Suppliers", type: :request do
   end
 
   describe "POST /v1/suppliers/import" do
-    it "returns stub response" do
+    it "returns bad_request when file missing" do
       post "/v1/suppliers/import", headers: auth_headers
-      expect(response).to have_http_status(:ok)
-      body = JSON.parse(response.body)
-      expect(body["imported"]).to eq(0)
+      expect(response).to have_http_status(:bad_request)
     end
   end
 end

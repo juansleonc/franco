@@ -1,14 +1,14 @@
 Rails.application.routes.draw do
   devise_for :users, defaults: { format: :json }
-  mount Rswag::Ui::Engine => '/api-docs'
-  mount Rswag::Api::Engine => '/api-docs'
+  mount Rswag::Ui::Engine => "/api-docs"
+  mount Rswag::Api::Engine => "/api-docs"
 
   namespace :v1 do
-    post 'auth/login', to: 'auth#login'
-    delete 'auth/logout', to: 'auth#logout'
+    post "auth/login", to: "auth#login"
+    delete "auth/logout", to: "auth#logout"
 
-    resource :health, only: [:show]
-    resources :suppliers, only: [:index, :create] do
+    resource :health, only: [ :show ]
+    resources :suppliers, only: [ :index, :create ] do
       collection do
         post :import
       end
