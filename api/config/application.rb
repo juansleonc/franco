@@ -25,6 +25,11 @@ module App
 
     config.autoload_lib(ignore: %w[assets tasks])
 
+    # Default primary keys as UUIDs
+    config.generators do |g|
+      g.orm :active_record, primary_key_type: :uuid
+    end
+
     config.api_only = true
   end
 end

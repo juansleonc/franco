@@ -24,6 +24,7 @@ services:
       DB_USER: franco
       DB_PASSWORD: franco
       RAILS_ENV: development
+      DEVISE_JWT_SECRET_KEY: dev_jwt_secret_change_me
     depends_on:
       - postgres
       - redis
