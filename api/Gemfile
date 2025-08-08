@@ -19,6 +19,7 @@ gem "sentry-rails"
 gem "sentry-ruby"
 gem "active_model_serializers"
 gem "json-schema"
+gem "csv"
 
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 

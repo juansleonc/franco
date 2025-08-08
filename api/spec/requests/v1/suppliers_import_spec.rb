@@ -25,4 +25,38 @@ RSpec.describe "V1::Suppliers import", type: :request do
   ensure
     file.close!
   end
+
+  it "persists when dry_run is false and updates duplicates" do
+    Supplier.create!(name: "Old", tax_id: "TAX1", email: "old@example.com", created_by_user: user)
+
+    csv = <<~CSV
+      legalName,taxId,email
+      Proveedor 1,TAX1,new1@example.com
+      Proveedor 3,TAX3,p3@example.com
+    CSV
+    file = Tempfile.new(["suppliers", ".csv"]).tap { |f| f.write(csv); f.rewind }
+
+    post "/v1/suppliers/import", headers: auth_headers, params: { file: Rack::Test::UploadedFile.new(file.path, 'text/csv'), dry_run: 'false' }
+    expect(response).to have_http_status(:ok)
+    expect(Supplier.find_by(tax_id: 'TAX1').email).to eq('new1@example.com')
+    expect(Supplier.find_by(tax_id: 'TAX3')).to be_present
+  ensure
+    file.close!
+  end
+
+  it "returns error CSV when requested" do
+    csv = <<~CSV
+      legalName,taxId,email
+      ,MISSING_NAME,invalid-email
+    CSV
+    file = Tempfile.new(["suppliers", ".csv"]).tap { |f| f.write(csv); f.rewind }
+
+    post "/v1/suppliers/import", headers: auth_headers, params: { file: Rack::Test::UploadedFile.new(file.path, 'text/csv'), dry_run: 'true', generate_error_csv: 'true' }
+    expect(response).to have_http_status(:ok)
+    body = JSON.parse(response.body)
+    expect(body["rejected"]).to be >= 1
+    expect(body["errors"]).to be_an(Array)
+  ensure
+    file.close!
+  end
 end
