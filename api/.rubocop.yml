@@ -23,7 +23,6 @@ RSpec:
       - expect
     Mocks:
       - allow
-      - allow_any_instance_of
       - expect
 
 # RSpec cops configuration
@@ -49,12 +48,31 @@ RSpec/LetSetup:
     - 'spec/integration/**/*'
 RSpec/Focus:
   Enabled: true
+  Severity: error
 RSpec/DescribeClass:
   Enabled: false
 RSpec/SpecFilePathFormat:
   Enabled: true
 RSpec/SpecFilePathSuffix:
   Enabled: true
+
+# Disallow any_instance_of/expect_any_instance_of in specs
+RSpec/AnyInstance:
+  Enabled: true
+  Severity: error
+
+# Prefer verifying doubles over plain doubles
+RSpec/VerifiedDoubles:
+  Enabled: true
+
+# Forbid stubbing constants and globals unless absolutely necessary
+RSpec/StubbedMock:
+  Enabled: true
+
+# Enforce no focused tests committed
+RSpec/Focus:
+  Enabled: true
+  Severity: error
 
 Performance:
   Enabled: true
