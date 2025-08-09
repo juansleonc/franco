@@ -7,6 +7,11 @@ on:
 jobs:
   api:
     runs-on: ubuntu-latest
+    env:
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USER: franco
+      DB_PASSWORD: franco
     defaults:
       run:
         working-directory: api
