@@ -26,4 +26,18 @@ jobs:
             echo "Branch '$HEAD' must start with one of: feature/, fix/, chore/, docs/, ci/, refactor/, test/, hotfix/." >&2
             exit 1
           fi
+          # Enforce allowed base branches: main or release/*
+          if [[ ! "$BASE" =~ ^main$|^release/.+$ ]]; then
+            echo "Base branch '$BASE' is not allowed. Use 'main' or 'release/*'." >&2
+            exit 1
+          fi
+          # For hotfix branches, allow base release/* or main; others should target main
+          if [[ "$HEAD" =~ ^hotfix/ ]] && [[ ! "$BASE" =~ ^main$|^release/.+$ ]]; then
+            echo "Hotfix branches must target 'main' or 'release/*'." >&2
+            exit 1
+          fi
+          if [[ ! "$HEAD" =~ ^hotfix/ ]] && [[ "$BASE" != "main" ]]; then
+            echo "Non-hotfix branches must target 'main' as base." >&2
+            exit 1
+          fi
           echo "Branch naming OK"
