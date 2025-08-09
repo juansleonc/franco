@@ -1,14 +1,17 @@
 module V1
   class ContractsController < ApplicationController
     def index
+      authorize Contract
       render json: { data: Contract.order(created_at: :desc) }
     end
 
     def show
+      authorize contract
       render json: { data: contract }
     end
 
     def create
+      authorize Contract
       record = Contract.new(contract_params)
       if record.save
         render json: { data: record }, status: :created
@@ -18,6 +21,7 @@ module V1
     end
 
     def update
+      authorize contract
       if contract.update(contract_params)
         render json: { data: contract }
       else
@@ -26,11 +30,13 @@ module V1
     end
 
     def destroy
+      authorize contract
       contract.destroy!
       head :no_content
     end
 
     def schedule_preview
+      authorize Contract, :schedule_preview?
       start_on = Date.parse(params.require(:start_on))
       due_day = params.require(:due_day).to_i
       months = (params[:months] || 12).to_i

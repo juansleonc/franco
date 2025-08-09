@@ -1,14 +1,17 @@
 module V1
   class TenantsController < ApplicationController
     def index
+      authorize Tenant
       render json: { data: Tenant.order(created_at: :desc) }
     end
 
     def show
+      authorize tenant
       render json: { data: tenant }
     end
 
     def create
+      authorize Tenant
       record = Tenant.new(tenant_params)
       if record.save
         render json: { data: record }, status: :created
@@ -18,6 +21,7 @@ module V1
     end
 
     def update
+      authorize tenant
       if tenant.update(tenant_params)
         render json: { data: tenant }
       else
@@ -26,6 +30,7 @@ module V1
     end
 
     def destroy
+      authorize tenant
       tenant.destroy!
       head :no_content
     end

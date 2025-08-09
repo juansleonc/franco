@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 class ApplicationPolicy
   attr_reader :user, :record
 
@@ -9,15 +7,15 @@ class ApplicationPolicy
   end
 
   def index?
-    false
+    true
   end
 
   def show?
-    false
+    true
   end
 
   def create?
-    false
+    true
   end
 
   def new?
@@ -25,7 +23,7 @@ class ApplicationPolicy
   end
 
   def update?
-    false
+    true
   end
 
   def edit?
@@ -33,7 +31,7 @@ class ApplicationPolicy
   end
 
   def destroy?
-    false
+    true
   end
 
   class Scope
@@ -43,11 +41,7 @@ class ApplicationPolicy
     end
 
     def resolve
-      raise NoMethodError, "You must define #resolve in #{self.class}"
+      @scope.all
     end
-
-    private
-
-    attr_reader :user, :scope
   end
 end

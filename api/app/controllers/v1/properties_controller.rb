@@ -1,14 +1,17 @@
 module V1
   class PropertiesController < ApplicationController
     def index
+      authorize Property
       render json: { data: Property.order(created_at: :desc) }
     end
 
     def show
+      authorize property
       render json: { data: property }
     end
 
     def create
+      authorize Property
       record = Property.new(property_params)
       if record.save
         render json: { data: record }, status: :created
@@ -18,6 +21,7 @@ module V1
     end
 
     def update
+      authorize property
       if property.update(property_params)
         render json: { data: property }
       else
@@ -26,6 +30,7 @@ module V1
     end
 
     def destroy
+      authorize property
       property.destroy!
       head :no_content
     end
