@@ -28,7 +28,6 @@ jobs:
         with:
           ruby-version: '3.3.4'
           bundler-cache: true
-        working-directory: ${{ github.workspace }}/api
       - name: Install gems
         working-directory: ${{ github.workspace }}/api
         run: bundle install --jobs 4 --retry 3
@@ -78,7 +77,6 @@ jobs:
         with:
           ruby-version: '3.3.4'
           bundler-cache: true
-        working-directory: ${{ github.workspace }}/api
       - name: Brakeman
         working-directory: ${{ github.workspace }}/api
         run: bundle exec brakeman --no-pager
@@ -86,7 +84,7 @@ jobs:
         working-directory: ${{ github.workspace }}/api
         run: |
           gem install bundler-audit -N
-          bundle exec bundle audit check --update
+          bundle audit check --update
 
   mobile:
     name: React Native App - Lint, Typecheck, Test
