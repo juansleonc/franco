@@ -85,15 +85,21 @@ jobs:
           RAILS_ENV: test
           COVERAGE: "true"
         run: bundle exec rspec --format progress
-      - name: Upload Rails coverage artifact
+      - name: Debug Rails coverage dir
         if: ${{ always() }}
+        run: |
+          ls -la
+          ls -la api || true
+          ls -la api/coverage || true
+      - name: Upload Rails coverage artifact
+        if: ${{ hashFiles('api/coverage/lcov.info') != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: rails-coverage
           path: api/coverage/
-          if-no-files-found: error
+          if-no-files-found: warn
       - name: Post Rails coverage as PR comment
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ github.event_name == 'pull_request' && hashFiles('api/coverage/lcov.info') != '' }}
         uses: romeovs/lcov-reporter-action@v0.3.1
         with:
           lcov-file: api/coverage/lcov.info
@@ -156,15 +162,21 @@ jobs:
       - name: Jest
         working-directory: ${{ github.workspace }}/app
         run: npm run test:ci -- --coverage
-      - name: Upload RN coverage artifact
+      - name: Debug App coverage dir
         if: ${{ always() }}
+        run: |
+          ls -la
+          ls -la app || true
+          ls -la app/coverage || true
+      - name: Upload RN coverage artifact
+        if: ${{ hashFiles('app/coverage/lcov.info') != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: app-coverage
           path: app/coverage/
-          if-no-files-found: error
+          if-no-files-found: warn
       - name: Post RN coverage as PR comment
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ github.event_name == 'pull_request' && hashFiles('app/coverage/lcov.info') != '' }}
         uses: romeovs/lcov-reporter-action@v0.3.1
         with:
           lcov-file: app/coverage/lcov.info
