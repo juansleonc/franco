@@ -10,10 +10,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_09_020000) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_09_030200) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
+
+  create_table "admin_fees", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "contract_id", null: false
+    t.string "period", null: false
+    t.integer "base_cents", null: false
+    t.decimal "fee_rate_pct", precision: 5, scale: 2, null: false
+    t.integer "fee_cents", null: false
+    t.string "status", default: "calculated", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["contract_id", "period"], name: "index_admin_fees_on_contract_id_and_period", unique: true
+  end
 
   create_table "bank_statements", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "account", null: false
@@ -35,6 +47,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_09_020000) do
     t.boolean "active", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "fee_rate_pct", precision: 5, scale: 2, default: "10.0", null: false
+    t.index ["fee_rate_pct"], name: "index_contracts_on_fee_rate_pct"
     t.index ["property_id", "start_on", "end_on"], name: "index_contracts_on_property_id_and_start_on_and_end_on"
   end
 
@@ -60,6 +74,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_09_020000) do
     t.datetime "updated_at", null: false
     t.index ["contract_id", "due_on"], name: "index_invoices_on_contract_id_and_due_on"
     t.index ["tenant_id", "status"], name: "index_invoices_on_tenant_id_and_status"
+  end
+
+  create_table "owner_statements", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "property_id", null: false
+    t.string "period", null: false
+    t.integer "total_rent_cents", default: 0, null: false
+    t.integer "total_expenses_cents", default: 0, null: false
+    t.integer "total_fees_cents", default: 0, null: false
+    t.integer "net_cents", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["property_id", "period"], name: "index_owner_statements_on_property_id_and_period", unique: true
   end
 
   create_table "payment_allocations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -143,12 +169,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_09_020000) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "admin_fees", "contracts"
   add_foreign_key "bank_statements", "users", column: "imported_by_user_id"
   add_foreign_key "contracts", "properties"
   add_foreign_key "contracts", "tenants"
   add_foreign_key "dunning_events", "invoices"
   add_foreign_key "invoices", "contracts"
   add_foreign_key "invoices", "tenants"
+  add_foreign_key "owner_statements", "properties"
   add_foreign_key "payment_allocations", "invoices"
   add_foreign_key "payment_allocations", "payments"
   add_foreign_key "payments", "tenants"
