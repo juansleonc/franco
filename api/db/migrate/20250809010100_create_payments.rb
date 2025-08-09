@@ -5,7 +5,7 @@ class CreatePayments < ActiveRecord::Migration[8.0]
       t.date :received_on, null: false
       t.integer :amount_cents, null: false
       t.string :currency, null: false, default: "USD"
-      t.string :method
+      t.string :payment_method
       t.string :reference
       t.string :status, null: false, default: "captured"
       t.timestamps

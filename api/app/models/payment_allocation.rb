@@ -6,6 +6,7 @@ class PaymentAllocation < ApplicationRecord
   validate :not_exceed_payment
 
   after_commit :update_invoice_balance_and_status, on: :create
+  after_destroy_commit :revert_invoice_balance
 
   private
 
@@ -21,6 +22,12 @@ class PaymentAllocation < ApplicationRecord
   def update_invoice_balance_and_status
     inv = invoice
     inv.update!(balance_cents: [ inv.balance_cents - amount_cents, 0 ].max)
+    inv.recalc_status!
+  end
+
+  def revert_invoice_balance
+    inv = invoice
+    inv.update!(balance_cents: inv.balance_cents + amount_cents)
     inv.recalc_status!
   end
 end

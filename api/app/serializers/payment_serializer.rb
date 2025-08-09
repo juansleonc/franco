@@ -3,6 +3,6 @@ class PaymentSerializer < ActiveModel::Serializer
   has_many :payment_allocations
 
   def payment_method
-    object[:method]
+    object[:payment_method]
   end
 end
