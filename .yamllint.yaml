@@ -1,5 +1,11 @@
+---
 extends: default
+ignore:
+  - '**/node_modules/**'
+  - 'app/node_modules/**'
+  - 'api/swagger/**'
 rules:
   line-length:
     max: 120
     level: warning
+  truthy: disable
