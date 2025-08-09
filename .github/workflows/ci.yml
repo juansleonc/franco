@@ -32,20 +32,20 @@ jobs:
           --health-retries 5
         ports:
           - 6379:6379
-    defaults:
-      run:
-        working-directory: api
     steps:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: .ruby-version
+          ruby-version: '3.3'
           bundler-cache: true
       - name: Install gems
+        working-directory: api
         run: bundle install --jobs 4 --retry 3
       - name: RuboCop
+        working-directory: api
         run: bin/rubocop -f github
       - name: DB prepare
+        working-directory: api
         env:
           DB_HOST: 127.0.0.1
           DB_USER: postgres
@@ -53,6 +53,7 @@ jobs:
           RAILS_ENV: test
         run: bundle exec rails db:prepare
       - name: RSpec
+        working-directory: api
         env:
           DB_HOST: 127.0.0.1
           DB_USER: postgres
@@ -61,6 +62,7 @@ jobs:
         run: bundle exec rspec --format progress
       - name: Generate OpenAPI (artifact)
         if: ${{ always() }}
+        working-directory: api
         env:
           DB_HOST: 127.0.0.1
           DB_USER: postgres
@@ -77,18 +79,17 @@ jobs:
   security:
     name: Rails API - Security Scans
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: api
     steps:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: .ruby-version
+          ruby-version: '3.3'
           bundler-cache: true
       - name: Brakeman
+        working-directory: api
         run: bin/brakeman --no-pager
       - name: Bundler Audit
+        working-directory: api
         run: |
           gem install bundler-audit -N
           bundle audit check --update
@@ -96,9 +97,6 @@ jobs:
   mobile:
     name: React Native App - Lint, Typecheck, Test
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: app
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -107,10 +105,14 @@ jobs:
           cache: 'npm'
           cache-dependency-path: app/package-lock.json
       - name: Install deps
+        working-directory: app
         run: npm ci
       - name: ESLint
+        working-directory: app
         run: npm run lint --silent
       - name: TypeScript
+        working-directory: app
         run: npm run typecheck --silent
       - name: Jest
+        working-directory: app
         run: npm test -- --ci --runInBand
