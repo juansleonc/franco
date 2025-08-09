@@ -86,6 +86,7 @@ jobs:
           DB_USER: postgres
           DB_PASSWORD: postgres
           RAILS_ENV: test
+          COVERAGE: "true"
         run: bundle exec rspec --format progress
       - name: Upload Rails coverage artifact
         if: ${{ always() }}
