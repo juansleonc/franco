@@ -14,7 +14,7 @@ class CreateInvoices < ActiveRecord::Migration[8.0]
 
     add_foreign_key :invoices, :contracts
     add_foreign_key :invoices, :tenants
-    add_index :invoices, [:tenant_id, :status]
-    add_index :invoices, [:contract_id, :due_on]
+    add_index :invoices, [ :tenant_id, :status ]
+    add_index :invoices, [ :contract_id, :due_on ]
   end
 end

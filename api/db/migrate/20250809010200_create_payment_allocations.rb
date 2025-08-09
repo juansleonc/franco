@@ -9,6 +9,6 @@ class CreatePaymentAllocations < ActiveRecord::Migration[8.0]
 
     add_foreign_key :payment_allocations, :payments
     add_foreign_key :payment_allocations, :invoices
-    add_index :payment_allocations, [:payment_id, :invoice_id], unique: true
+    add_index :payment_allocations, [ :payment_id, :invoice_id ], unique: true
   end
 end

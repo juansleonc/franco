@@ -12,7 +12,7 @@ class PaymentAllocation < ApplicationRecord
   def not_exceed_payment
     return if payment.blank?
     if amount_cents.to_i + payment.allocated_cents - (persisted? ? self.class.find(id).amount_cents : 0) > payment.amount_cents
-      errors.add(:amount_cents, 'exceeds payment amount')
+      errors.add(:amount_cents, "exceeds payment amount")
     end
   end
 

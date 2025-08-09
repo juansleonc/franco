@@ -12,6 +12,6 @@ class CreatePayments < ActiveRecord::Migration[8.0]
     end
 
     add_foreign_key :payments, :tenants
-    add_index :payments, [:tenant_id, :received_on]
+    add_index :payments, [ :tenant_id, :received_on ]
   end
 end

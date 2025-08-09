@@ -10,10 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_09_000003) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_09_010400) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
+
+  create_table "bank_statements", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "account", null: false
+    t.date "statement_on", null: false
+    t.bigint "imported_by_user_id", null: false
+    t.string "original_filename"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["imported_by_user_id"], name: "index_bank_statements_on_imported_by_user_id"
+  end
 
   create_table "contracts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "property_id", null: false
@@ -28,6 +38,43 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_09_000003) do
     t.index ["property_id", "start_on", "end_on"], name: "index_contracts_on_property_id_and_start_on_and_end_on"
   end
 
+  create_table "invoices", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "contract_id", null: false
+    t.uuid "tenant_id", null: false
+    t.date "issue_on", null: false
+    t.date "due_on", null: false
+    t.integer "amount_cents", null: false
+    t.integer "balance_cents", null: false
+    t.string "currency", default: "USD", null: false
+    t.string "status", default: "pending", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["contract_id", "due_on"], name: "index_invoices_on_contract_id_and_due_on"
+    t.index ["tenant_id", "status"], name: "index_invoices_on_tenant_id_and_status"
+  end
+
+  create_table "payment_allocations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "payment_id", null: false
+    t.uuid "invoice_id", null: false
+    t.integer "amount_cents", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["payment_id", "invoice_id"], name: "index_payment_allocations_on_payment_id_and_invoice_id", unique: true
+  end
+
+  create_table "payments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "tenant_id", null: false
+    t.date "received_on", null: false
+    t.integer "amount_cents", null: false
+    t.string "currency", default: "USD", null: false
+    t.string "method"
+    t.string "reference"
+    t.string "status", default: "captured", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["tenant_id", "received_on"], name: "index_payments_on_tenant_id_and_received_on"
+  end
+
   create_table "properties", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name", null: false
     t.string "address", null: false
@@ -36,6 +83,20 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_09_000003) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["address", "unit"], name: "index_properties_on_address_and_unit", unique: true
+  end
+
+  create_table "statement_lines", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "bank_statement_id", null: false
+    t.date "posted_on", null: false
+    t.string "description"
+    t.integer "amount_cents", null: false
+    t.uuid "matched_payment_id"
+    t.string "match_status", default: "unmatched", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["bank_statement_id"], name: "index_statement_lines_on_bank_statement_id"
+    t.index ["match_status"], name: "index_statement_lines_on_match_status"
+    t.index ["matched_payment_id"], name: "index_statement_lines_on_matched_payment_id"
   end
 
   create_table "suppliers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -73,7 +134,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_09_000003) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "bank_statements", "users", column: "imported_by_user_id"
   add_foreign_key "contracts", "properties"
   add_foreign_key "contracts", "tenants"
+  add_foreign_key "invoices", "contracts"
+  add_foreign_key "invoices", "tenants"
+  add_foreign_key "payment_allocations", "invoices"
+  add_foreign_key "payment_allocations", "payments"
+  add_foreign_key "payments", "tenants"
+  add_foreign_key "statement_lines", "bank_statements"
+  add_foreign_key "statement_lines", "payments", column: "matched_payment_id"
   add_foreign_key "suppliers", "users", column: "created_by_user_id"
 end
