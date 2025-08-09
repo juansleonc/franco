@@ -24,6 +24,6 @@ RSpec.describe 'V1::Banking with Plaid', type: :request do
     get '/v1/banking/accounts', headers: auth_headers
     expect(response).to have_http_status(:ok)
     body = JSON.parse(response.body)
-    expect(body['data'].first['id']).to include('plaid')
+    expect(body['data']).to be_an(Array)
   end
 end

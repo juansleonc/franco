@@ -10,16 +10,21 @@ RSpec.describe 'V1::Notifications', type: :request do
   end
 
   it 'sends a test email' do
+    # Stub delivery to avoid SMTP in test
+    allow_any_instance_of(ActionMailer::MessageDelivery).to receive(:deliver_now).and_return(true)
     post '/v1/notifications/send_test', params: { to: 'test@example.com', subject: 'Hi', body: 'Hello' }, headers: auth_headers
     expect(response).to have_http_status(:ok)
   end
 
   it 'sends a test sms' do
+    # Ensure Sms.client exists
+    expect(Sms).to respond_to(:client)
     post '/v1/notifications/send_test_sms', params: { to: '+123456' }, headers: auth_headers
     expect(response).to have_http_status(:ok)
   end
 
   it 'sends dunning email for invoice' do
+    allow_any_instance_of(ActionMailer::MessageDelivery).to receive(:deliver_now).and_return(true)
     tenant = create(:tenant, email: 't@example.com', full_name: 'T')
     contract = create(:contract, tenant: tenant)
     invoice = create(:invoice, tenant: tenant, contract: contract, balance_cents: 12345)
@@ -28,6 +33,7 @@ RSpec.describe 'V1::Notifications', type: :request do
   end
 
   it 'sends dunning sms for invoice (null client)' do
+    expect(Sms).to respond_to(:client)
     tenant = create(:tenant, email: 't@example.com', full_name: 'T', phone: '+100000')
     contract = create(:contract, tenant: tenant)
     invoice = create(:invoice, tenant: tenant, contract: contract, balance_cents: 12345)

@@ -1,4 +1,7 @@
 module Banking
+  # Define constant expected by Zeitwerk for this path
+  class Client; end
+
   class << self
     def client
       @client ||= build_client

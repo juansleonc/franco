@@ -10,8 +10,8 @@ RSpec.describe 'V1::Dedup', type: :request do
   end
 
   it 'lists tenant duplicate candidates' do
-    create(:tenant, email: 'dup1@example.com')
-    create(:tenant, email: 'dup1@example.com')
+    create(:tenant, email: 'dup1a@example.com', full_name: 'Same Name')
+    create(:tenant, email: 'dup1b@example.com', full_name: 'Same Name')
     get '/v1/dedup/tenants/candidates', headers: auth_headers
     expect(response).to have_http_status(:ok)
     body = JSON.parse(response.body)
