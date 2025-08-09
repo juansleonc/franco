@@ -1,17 +1,17 @@
 class PaymentPolicy < ApplicationPolicy
   def index?
-    user.present?
+    user&.role_admin? || user&.role_manager? || user&.role_assistant?
   end
 
   def show?
-    user.present?
+    user&.role_admin? || user&.role_manager? || user&.role_assistant?
   end
 
   def create?
-    user.present?
+    user&.role_admin? || user&.role_manager?
   end
 
   def update?
-    user.present?
+    user&.role_admin? || user&.role_manager?
   end
 end

@@ -86,7 +86,7 @@ module V1
         recent_success = NotificationLog.where(tenant_id: log.tenant_id, channel: log.channel, status: "sent").where("sent_at > ?", 5.minutes.ago)
         next if recent_success.exists?
         channels = [ log.channel ]
-        Dunning::SendNotificationsJob.perform_later(invoice_id: log.invoice_id, channels: channels)
+        Dunning::SendNotificationsJob.enqueue_once(invoice_id: log.invoice_id, channels: channels)
         count += 1
       end
       render json: { data: { enqueued: count } }

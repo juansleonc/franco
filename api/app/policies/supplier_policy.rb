@@ -6,14 +6,14 @@ class SupplierPolicy < ApplicationPolicy
   end
 
   def index?
-    user.present?
+    user&.role_admin? || user&.role_manager? || user&.role_assistant?
   end
 
   def create?
-    user.present?
+    user&.role_admin? || user&.role_manager?
   end
 
   def import?
-    user.present?
+    user&.role_admin? || user&.role_manager?
   end
 end

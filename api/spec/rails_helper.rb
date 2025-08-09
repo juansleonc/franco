@@ -34,6 +34,14 @@ require 'devise'
 Rails.application.config.hosts.clear if Rails.application.config.respond_to?(:hosts)
 
 RSpec.configure do |config|
+  # Enable ActiveJob test adapter helpers
+  config.include ActiveJob::TestHelper
+
+  config.before do
+    ActiveJob::Base.queue_adapter = :test
+    clear_enqueued_jobs
+    clear_performed_jobs
+  end
   config.include Devise::Test::IntegrationHelpers, type: :request
   config.include FactoryBot::Syntax::Methods
   config.fixture_paths = [ Rails.root.join('spec/fixtures') ]
