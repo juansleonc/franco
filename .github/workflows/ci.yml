@@ -37,7 +37,7 @@ jobs:
       - name: DB prepare
         working-directory: ${{ github.workspace }}/api
         env:
-          DB_HOST: 127.0.0.1
+          DB_HOST: postgres
           DB_USER: postgres
           DB_PASSWORD: postgres
           RAILS_ENV: test
@@ -45,7 +45,7 @@ jobs:
       - name: RSpec
         working-directory: ${{ github.workspace }}/api
         env:
-          DB_HOST: 127.0.0.1
+          DB_HOST: postgres
           DB_USER: postgres
           DB_PASSWORD: postgres
           RAILS_ENV: test
@@ -54,7 +54,7 @@ jobs:
         if: ${{ always() }}
         working-directory: ${{ github.workspace }}/api
         env:
-          DB_HOST: 127.0.0.1
+          DB_HOST: postgres
           DB_USER: postgres
           DB_PASSWORD: postgres
           RAILS_ENV: test
