@@ -55,13 +55,23 @@ function RootLayoutNav() {
 
   useEffect(() => {
     (async () => {
-      const token = await AsyncStorage.getItem('authToken');
-      if (!token) router.replace('login');
+      try {
+        const token = await AsyncStorage.getItem('authToken');
+        if (!token) router.replace('login');
+      } catch {}
       setBootChecked(true);
     })();
   }, []);
 
-  if (!bootChecked) return null;
+  if (!bootChecked) {
+    return (
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        </Stack>
+      </ThemeProvider>
+    );
+  }
 
   return (
     <QueryProvider>
