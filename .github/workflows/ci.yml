@@ -17,21 +17,11 @@ jobs:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: franco_test
         options: >-
-          --health-cmd "pg_isready -U postgres" \
-          --health-interval 10s \
-          --health-timeout 5s \
-          --health-retries 5
-        ports:
-          - 5432:5432
+          --health-cmd "pg_isready -U postgres" --health-interval 10s --health-timeout 5s --health-retries 5
       redis:
         image: redis:7-alpine
         options: >-
-          --health-cmd "redis-cli ping" \
-          --health-interval 10s \
-          --health-timeout 5s \
-          --health-retries 5
-        ports:
-          - 6379:6379
+          --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
@@ -39,13 +29,13 @@ jobs:
           ruby-version: '3.3'
           bundler-cache: true
       - name: Install gems
-        working-directory: api
+        working-directory: ${{ github.workspace }}/api
         run: bundle install --jobs 4 --retry 3
       - name: RuboCop
-        working-directory: api
+        working-directory: ${{ github.workspace }}/api
         run: bin/rubocop -f github
       - name: DB prepare
-        working-directory: api
+        working-directory: ${{ github.workspace }}/api
         env:
           DB_HOST: 127.0.0.1
           DB_USER: postgres
@@ -53,7 +43,7 @@ jobs:
           RAILS_ENV: test
         run: bundle exec rails db:prepare
       - name: RSpec
-        working-directory: api
+        working-directory: ${{ github.workspace }}/api
         env:
           DB_HOST: 127.0.0.1
           DB_USER: postgres
@@ -62,7 +52,7 @@ jobs:
         run: bundle exec rspec --format progress
       - name: Generate OpenAPI (artifact)
         if: ${{ always() }}
-        working-directory: api
+        working-directory: ${{ github.workspace }}/api
         env:
           DB_HOST: 127.0.0.1
           DB_USER: postgres
@@ -86,10 +76,10 @@ jobs:
           ruby-version: '3.3'
           bundler-cache: true
       - name: Brakeman
-        working-directory: api
+        working-directory: ${{ github.workspace }}/api
         run: bin/brakeman --no-pager
       - name: Bundler Audit
-        working-directory: api
+        working-directory: ${{ github.workspace }}/api
         run: |
           gem install bundler-audit -N
           bundle audit check --update
@@ -105,14 +95,14 @@ jobs:
           cache: 'npm'
           cache-dependency-path: app/package-lock.json
       - name: Install deps
-        working-directory: app
+        working-directory: ${{ github.workspace }}/app
         run: npm ci
       - name: ESLint
-        working-directory: app
+        working-directory: ${{ github.workspace }}/app
         run: npm run lint --silent
       - name: TypeScript
-        working-directory: app
+        working-directory: ${{ github.workspace }}/app
         run: npm run typecheck --silent
       - name: Jest
-        working-directory: app
+        working-directory: ${{ github.workspace }}/app
         run: npm test -- --ci --runInBand
