@@ -25,10 +25,9 @@ module Statements
     private
 
     def rent_collected_cents(property)
-      Invoice.joins(:contract)
-             .where(contracts: { property_id: property.id }, issue_on: @month_start..@month_end)
-             .joins(:payment_allocations)
-             .sum(:amount_cents)
+      PaymentAllocation.joins(invoice: :contract)
+                       .where(contracts: { property_id: property.id }, invoices: { issue_on: @month_start..@month_end })
+                       .sum(:amount_cents)
     end
 
     def expenses_cents(property)
