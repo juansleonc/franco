@@ -17,7 +17,7 @@ RSpec.describe 'V1::Notifications retry', type: :request do
 
     expect {
       post '/v1/notifications/retry_failed', params: { invoice_id: inv.id }, headers: auth_headers
-    }.to change { enqueued_jobs_count }.by_at_least(1)
+    }.to change { enqueued_jobs.size }.by_at_least(1)
     expect(response).to have_http_status(:ok)
     body = JSON.parse(response.body)
     expect(body['data']['enqueued']).to be >= 1
