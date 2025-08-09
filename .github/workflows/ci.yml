@@ -69,7 +69,7 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3.4'
-          bundler-cache: true
+          bundler-cache: false
       - name: Install gems
         working-directory: ${{ github.workspace }}/api
         run: bundle install --jobs 4 --retry 3
@@ -146,7 +146,10 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3.4'
-          bundler-cache: true
+          bundler-cache: false
+      - name: Install gems
+        working-directory: ${{ github.workspace }}/api
+        run: bundle install --jobs 4 --retry 3
       - name: Brakeman
         working-directory: ${{ github.workspace }}/api
         run: bundle exec brakeman --no-pager
