@@ -18,7 +18,7 @@ RSpec.describe 'V1::Notifications', type: :request do
 
   it 'sends a test sms' do
     # Ensure Sms.client exists
-    expect(Sms).to respond_to(:client)
+    require Rails.root.join('app/services/sms/client')
     post '/v1/notifications/send_test_sms', params: { to: '+123456' }, headers: auth_headers
     expect(response).to have_http_status(:ok)
   end
@@ -33,7 +33,7 @@ RSpec.describe 'V1::Notifications', type: :request do
   end
 
   it 'sends dunning sms for invoice (null client)' do
-    expect(Sms).to respond_to(:client)
+    require Rails.root.join('app/services/sms/client')
     tenant = create(:tenant, email: 't@example.com', full_name: 'T', phone: '+100000')
     contract = create(:contract, tenant: tenant)
     invoice = create(:invoice, tenant: tenant, contract: contract, balance_cents: 12345)

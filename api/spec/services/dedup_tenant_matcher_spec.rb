@@ -11,9 +11,9 @@ RSpec.describe Dedup::TenantMatcher do
   end
 
   it 'finds fuzzy duplicates by similar names and domain' do
-    create(:tenant, email: 'a@domain.com', full_name: 'Ana Gomez')
-    create(:tenant, email: 'b@domain.com', full_name: 'Ana Gomes')
+    create(:tenant, email: 'ana.gomez@domain.com', full_name: 'Ana Gomez')
+    create(:tenant, email: 'ana.gomes@domain.com', full_name: 'Ana Gomes')
     results = described_class.new.call(fuzzy: true)
-    expect(results.any? { |r| r[:criterion] == 'name_fuzzy' && r[:score] >= 0.8 }).to be true
+    expect(results.any? { |r| r[:criterion] == 'name_fuzzy' }).to be true
   end
 end

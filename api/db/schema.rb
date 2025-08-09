@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_09_030200) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_09_121000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -74,6 +74,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_09_030200) do
     t.datetime "updated_at", null: false
     t.index ["contract_id", "due_on"], name: "index_invoices_on_contract_id_and_due_on"
     t.index ["tenant_id", "status"], name: "index_invoices_on_tenant_id_and_status"
+  end
+
+  create_table "notification_logs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "invoice_id", null: false
+    t.uuid "tenant_id", null: false
+    t.string "channel", null: false
+    t.string "status", default: "sent", null: false
+    t.text "error"
+    t.datetime "sent_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["invoice_id", "channel", "sent_at"], name: "index_notification_logs_on_invoice_id_and_channel_and_sent_at"
+    t.index ["tenant_id", "channel", "sent_at"], name: "index_notification_logs_on_tenant_id_and_channel_and_sent_at"
   end
 
   create_table "owner_statements", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

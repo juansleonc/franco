@@ -11,7 +11,7 @@ RSpec.describe 'V1::Dedup Suppliers', type: :request do
 
   it 'lists supplier duplicates by tax_id and email' do
     create(:supplier, tax_id: 'T-1a', email: 's1@example.com', name: 'S1')
-    create(:supplier, tax_id: 'T-1a', email: 's2@example.com', name: 'S2')
+    create(:supplier, tax_id: 'T-1a', email: 's3@example.com', name: 'S2')
     get '/v1/dedup/suppliers/candidates', headers: auth_headers
     expect(response).to have_http_status(:ok)
     body = JSON.parse(response.body)
