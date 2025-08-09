@@ -37,7 +37,8 @@ module V1
             next
           end
         end
-        enqueued << Dunning::SendNotificationsJob.perform_later(invoice_id: id, channels: channels)
+        # Use enqueue_once to allow adapters with uniqueness support to dedupe
+        enqueued << Dunning::SendNotificationsJob.enqueue_once(invoice_id: id, channels: channels)
       end
       render json: { data: { enqueued: enqueued.size, throttled: throttled } }
     end

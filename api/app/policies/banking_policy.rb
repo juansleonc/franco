@@ -1,9 +1,9 @@
 class BankingPolicy < ApplicationPolicy
   def index?
-    user.present?
+    user&.role_admin? || user&.role_manager?
   end
 
   def create?
-    user.present?
+    user&.role_admin?
   end
 end

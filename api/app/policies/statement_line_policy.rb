@@ -1,5 +1,5 @@
 class StatementLinePolicy < ApplicationPolicy
   def update?
-    user.present?
+    user&.role_admin? || user&.role_manager?
   end
 end
