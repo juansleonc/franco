@@ -42,6 +42,22 @@ Rails.application.routes.draw do
     # Milestone 5: admin fees & owner statements
     post "fees/calculate", to: "fees#calculate"
     resources :owner_statements, only: %i[index show]
+
+    # Milestone 6: dedup, notifications, banking (optional)
+    namespace :dedup do
+      get ":entity/candidates", to: "dedup#candidates", as: :candidates
+    end
+    post "dedup/merge", to: "dedup#merge"
+
+    namespace :notifications do
+      post "send_test", to: "notifications#send_test"
+      post "send_test_sms", to: "notifications#send_test_sms"
+    end
+
+    namespace :banking do
+      get "accounts", to: "banking#accounts"
+      post "sync", to: "banking#sync"
+    end
   end
 
   # rails health
