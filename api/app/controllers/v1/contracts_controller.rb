@@ -2,19 +2,20 @@ module V1
   class ContractsController < ApplicationController
     def index
       authorize Contract
-      render json: { data: Contract.order(created_at: :desc) }
+      records = Contract.order(created_at: :desc)
+      render json: { data: ActiveModelSerializers::SerializableResource.new(records, each_serializer: ContractSerializer) }
     end
 
     def show
       authorize contract
-      render json: { data: contract }
+      render json: { data: ContractSerializer.new(contract) }
     end
 
     def create
       authorize Contract
       record = Contract.new(contract_params)
       if record.save
-        render json: { data: record }, status: :created
+        render json: { data: ContractSerializer.new(record) }, status: :created
       else
         render json: { errors: record.errors.full_messages }, status: :unprocessable_entity
       end
@@ -23,7 +24,7 @@ module V1
     def update
       authorize contract
       if contract.update(contract_params)
-        render json: { data: contract }
+        render json: { data: ContractSerializer.new(contract) }
       else
         render json: { errors: contract.errors.full_messages }, status: :unprocessable_entity
       end

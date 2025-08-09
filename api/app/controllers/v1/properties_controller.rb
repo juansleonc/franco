@@ -2,19 +2,20 @@ module V1
   class PropertiesController < ApplicationController
     def index
       authorize Property
-      render json: { data: Property.order(created_at: :desc) }
+      records = Property.order(created_at: :desc)
+      render json: { data: ActiveModelSerializers::SerializableResource.new(records, each_serializer: PropertySerializer) }
     end
 
     def show
       authorize property
-      render json: { data: property }
+      render json: { data: PropertySerializer.new(property) }
     end
 
     def create
       authorize Property
       record = Property.new(property_params)
       if record.save
-        render json: { data: record }, status: :created
+        render json: { data: PropertySerializer.new(record) }, status: :created
       else
         render json: { errors: record.errors.full_messages }, status: :unprocessable_entity
       end
@@ -23,7 +24,7 @@ module V1
     def update
       authorize property
       if property.update(property_params)
-        render json: { data: property }
+        render json: { data: PropertySerializer.new(property) }
       else
         render json: { errors: property.errors.full_messages }, status: :unprocessable_entity
       end

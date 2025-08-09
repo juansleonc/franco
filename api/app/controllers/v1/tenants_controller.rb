@@ -2,19 +2,20 @@ module V1
   class TenantsController < ApplicationController
     def index
       authorize Tenant
-      render json: { data: Tenant.order(created_at: :desc) }
+      records = Tenant.order(created_at: :desc)
+      render json: { data: ActiveModelSerializers::SerializableResource.new(records, each_serializer: TenantSerializer) }
     end
 
     def show
       authorize tenant
-      render json: { data: tenant }
+      render json: { data: TenantSerializer.new(tenant) }
     end
 
     def create
       authorize Tenant
       record = Tenant.new(tenant_params)
       if record.save
-        render json: { data: record }, status: :created
+        render json: { data: TenantSerializer.new(record) }, status: :created
       else
         render json: { errors: record.errors.full_messages }, status: :unprocessable_entity
       end
@@ -23,7 +24,7 @@ module V1
     def update
       authorize tenant
       if tenant.update(tenant_params)
-        render json: { data: tenant }
+        render json: { data: TenantSerializer.new(tenant) }
       else
         render json: { errors: tenant.errors.full_messages }, status: :unprocessable_entity
       end
