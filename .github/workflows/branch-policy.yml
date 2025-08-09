@@ -1,0 +1,29 @@
+name: Branch Policy
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, edited]
+
+jobs:
+  enforce-branch-naming:
+    name: Enforce branch naming and source branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate PR branch naming
+        shell: bash
+        run: |
+          HEAD="${{ github.head_ref }}"
+          BASE="${{ github.base_ref }}"
+          echo "PR from '$HEAD' into '$BASE'"
+          if [[ -z "$HEAD" ]]; then
+            echo "No head_ref found; skipping (not a PR)"; exit 0
+          fi
+          if [[ "$HEAD" == "main" ]]; then
+            echo "PR source branch cannot be 'main'. Create a feature branch." >&2
+            exit 1
+          fi
+          if [[ ! "$HEAD" =~ ^(feature|fix|chore|docs|ci|refactor|test|hotfix)/.+$ ]]; then
+            echo "Branch '$HEAD' must start with one of: feature/, fix/, chore/, docs/, ci/, refactor/, test/, hotfix/." >&2
+            exit 1
+          fi
+          echo "Branch naming OK"
