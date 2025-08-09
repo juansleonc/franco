@@ -3,16 +3,16 @@ module V1
     def candidates
       authorize :dedup, :index?
       entity = params[:entity]
-      fuzzy = params[:fuzzy] == 'true'
+      fuzzy = params[:fuzzy] == "true"
       case entity
-      when 'tenants'
+      when "tenants"
         render json: { data: Dedup::TenantMatcher.new.call(fuzzy: fuzzy) }
-      when 'suppliers'
+      when "suppliers"
         render json: { data: Dedup::SupplierMatcher.new.call(fuzzy: fuzzy) }
-      when 'properties'
+      when "properties"
         render json: { data: Dedup::PropertyMatcher.new.call }
       else
-        render json: { error: 'unknown_entity' }, status: :bad_request
+        render json: { error: "unknown_entity" }, status: :bad_request
       end
     end
 
@@ -23,12 +23,12 @@ module V1
       source_ids = Array(params[:source_ids]).map(&:to_s)
 
       service = case entity
-                when 'tenants' then Dedup::TenantMerger.new
-                when 'suppliers' then Dedup::SupplierMerger.new
-                when 'properties' then Dedup::PropertyMerger.new
-                else
-                  return render json: { error: 'unknown_entity' }, status: :bad_request
-                end
+      when "tenants" then Dedup::TenantMerger.new
+      when "suppliers" then Dedup::SupplierMerger.new
+      when "properties" then Dedup::PropertyMerger.new
+      else
+                  return render json: { error: "unknown_entity" }, status: :bad_request
+      end
 
       result = service.call(target_id: target_id, source_ids: source_ids)
       if result[:ok]

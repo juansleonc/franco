@@ -3,8 +3,8 @@ module V1
     def send_test
       authorize :notifications, :create?
       to = params.require(:to)
-      subject = params[:subject] || 'Franco Test Notification'
-      body = params[:body] || 'This is a test email from Franco.'
+      subject = params[:subject] || "Franco Test Notification"
+      body = params[:body] || "This is a test email from Franco."
       mail = DunningMailer.test_email(to: to, subject: subject, body: body)
       mail.deliver_now
       render json: { data: { delivered: true } }
@@ -13,7 +13,7 @@ module V1
     def send_test_sms
       authorize :notifications, :create?
       to = params.require(:to)
-      body = params[:body] || 'This is a test SMS from Franco.'
+      body = params[:body] || "This is a test SMS from Franco."
       Sms.client.deliver(to: to, body: body)
       render json: { data: { sent: true } }
     end
@@ -46,9 +46,13 @@ module V1
         scope = scope.where(channel: params[:channel])
       end
       if params[:since].present?
-        scope = scope.where('sent_at >= ?', Time.parse(params[:since]))
+        scope = scope.where("sent_at >= ?", Time.parse(params[:since]))
       end
-      scope = scope.order(sent_at: :desc).limit((params[:limit] || 100).to_i)
+    scope = scope.order(sent_at: :desc)
+    requested_limit = (params[:limit] || 100).to_i
+    requested_limit = 1 if requested_limit < 1
+    max_limit = 500
+    scope = scope.limit([ requested_limit, max_limit ].min)
       render json: { data: scope.map { |l| serialize_log(l) } }
     end
 
@@ -58,26 +62,30 @@ module V1
       scope = scope.where(invoice_id: params[:invoice_id]) if params[:invoice_id].present?
       scope = scope.where(tenant_id: params[:tenant_id]) if params[:tenant_id].present?
       scope = scope.where(channel: params[:channel]) if params[:channel].present?
-      scope = scope.where('sent_at >= ?', Time.parse(params[:since])) if params[:since].present?
-      scope = scope.order(sent_at: :desc)
+      scope = scope.where("sent_at >= ?", Time.parse(params[:since])) if params[:since].present?
+    scope = scope.order(sent_at: :desc)
+    require "csv"
       csv = CSV.generate do |csvio|
         csvio << %w[id invoice_id tenant_id channel status error sent_at]
-        scope.find_each do |l|
-          csvio << [l.id, l.invoice_id, l.tenant_id, l.channel, l.status, l.error, l.sent_at]
+      scope.find_each do |l|
+          csvio << [ l.id, l.invoice_id, l.tenant_id, l.channel, l.status, l.error, l.sent_at ]
         end
       end
-      send_data csv, filename: "notification_logs.csv", type: 'text/csv'
+      send_data csv, filename: "notification_logs.csv", type: "text/csv"
     end
 
     def retry_failed
       authorize :notifications, :create?
-      scope = NotificationLog.where(status: 'failed')
+      scope = NotificationLog.where(status: "failed")
       scope = scope.where(invoice_id: params[:invoice_id]) if params[:invoice_id].present?
       scope = scope.where(tenant_id: params[:tenant_id]) if params[:tenant_id].present?
       scope = scope.where(channel: params[:channel]) if params[:channel].present?
       count = 0
       scope.find_each do |log|
-        channels = [log.channel]
+        # Avoid duplicate retries if there was a successful send very recently for same tenant/channel
+        recent_success = NotificationLog.where(tenant_id: log.tenant_id, channel: log.channel, status: "sent").where("sent_at > ?", 5.minutes.ago)
+        next if recent_success.exists?
+        channels = [ log.channel ]
         Dunning::SendNotificationsJob.perform_later(invoice_id: log.invoice_id, channels: channels)
         count += 1
       end

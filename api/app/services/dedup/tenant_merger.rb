@@ -6,7 +6,7 @@ module Dedup
         target = Tenant.find(target_id)
         sources = Tenant.where(id: source_ids).to_a
         if sources.empty?
-          return { ok: false, errors: ['no_sources'] }
+          return { ok: false, errors: [ "no_sources" ] }
         end
         sources.each do |src|
           next if src.id == target.id

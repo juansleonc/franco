@@ -9,7 +9,9 @@ class CreateNotificationLogs < ActiveRecord::Migration[8.0]
       t.datetime :sent_at, null: false
       t.timestamps
     end
-    add_index :notification_logs, [:tenant_id, :channel, :sent_at]
-    add_index :notification_logs, [:invoice_id, :channel, :sent_at]
+    add_foreign_key :notification_logs, :invoices
+    add_foreign_key :notification_logs, :tenants
+    add_index :notification_logs, [ :tenant_id, :channel, :sent_at ]
+    add_index :notification_logs, [ :invoice_id, :channel, :sent_at ]
   end
 end

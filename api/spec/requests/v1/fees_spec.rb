@@ -11,7 +11,7 @@ RSpec.describe 'V1::Fees', type: :request do
 
   it 'calculates admin fees for a period' do
     contract = create(:contract, start_on: '2025-01-01', end_on: '2025-12-31', due_day: 5, monthly_rent: 1000, fee_rate_pct: 10.0)
-    inv = create(:invoice, contract: contract, tenant: contract.tenant, issue_on: Date.new(2025,8,1), due_on: Date.new(2025,8,5), amount_cents: 100_00, balance_cents: 0)
+    inv = create(:invoice, contract: contract, tenant: contract.tenant, issue_on: Date.new(2025, 8, 1), due_on: Date.new(2025, 8, 5), amount_cents: 100_00, balance_cents: 0)
     pay = create(:payment, amount_cents: 100_00)
     create(:payment_allocation, payment: pay, invoice: inv, amount_cents: 100_00)
 

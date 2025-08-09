@@ -5,7 +5,7 @@ RSpec.describe NotificationLog, type: :model do
     tenant = create(:tenant)
     contract = create(:contract, tenant: tenant)
     invoice = create(:invoice, tenant: tenant, contract: contract)
-    log = NotificationLog.new(invoice: invoice, tenant: tenant, channel: 'email', status: 'sent', sent_at: Time.current)
+    log = described_class.new(invoice: invoice, tenant: tenant, channel: 'email', status: 'sent', sent_at: Time.current)
     expect(log).to be_valid
   end
 end
