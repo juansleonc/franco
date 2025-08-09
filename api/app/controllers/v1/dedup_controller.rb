@@ -3,11 +3,12 @@ module V1
     def candidates
       authorize :dedup, :index?
       entity = params[:entity]
+      fuzzy = params[:fuzzy] == 'true'
       case entity
       when 'tenants'
-        render json: { data: Dedup::TenantMatcher.new.call }
+        render json: { data: Dedup::TenantMatcher.new.call(fuzzy: fuzzy) }
       when 'suppliers'
-        render json: { data: Dedup::SupplierMatcher.new.call }
+        render json: { data: Dedup::SupplierMatcher.new.call(fuzzy: fuzzy) }
       when 'properties'
         render json: { data: Dedup::PropertyMatcher.new.call }
       else

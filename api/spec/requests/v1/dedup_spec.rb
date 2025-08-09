@@ -19,6 +19,15 @@ RSpec.describe 'V1::Dedup', type: :request do
     expect(body['data'].first['entity']).to eq('tenants')
   end
 
+  it 'lists fuzzy candidates when enabled' do
+    create(:tenant, full_name: 'Ana Gomez', email: 'ana@x.com')
+    create(:tenant, full_name: 'Ana Gomes', email: 'ana@x.com.mx')
+    get '/v1/dedup/tenants/candidates', params: { fuzzy: 'true' }, headers: auth_headers
+    expect(response).to have_http_status(:ok)
+    body = JSON.parse(response.body)
+    expect(body['data'].any? { |g| g['criterion'] == 'name_fuzzy' }).to be true
+  end
+
   it 'merges tenants' do
     t1 = create(:tenant, email: 'a@example.com')
     t2 = create(:tenant, email: 'a@example.com')
