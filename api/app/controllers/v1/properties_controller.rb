@@ -1,9 +1,10 @@
 module V1
   class PropertiesController < ApplicationController
+    include Pagy::Backend
     def index
       authorize Property
-      records = Property.order(created_at: :desc)
-      render json: { data: ActiveModelSerializers::SerializableResource.new(records, each_serializer: PropertySerializer) }
+      pagy, records = pagy(Property.order(created_at: :desc))
+      render json: { data: ActiveModelSerializers::SerializableResource.new(records, each_serializer: PropertySerializer), meta: { page: pagy.page, pages: pagy.pages, count: pagy.count } }
     end
 
     def show

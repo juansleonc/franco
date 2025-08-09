@@ -1,9 +1,10 @@
 module V1
   class TenantsController < ApplicationController
+    include Pagy::Backend
     def index
       authorize Tenant
-      records = Tenant.order(created_at: :desc)
-      render json: { data: ActiveModelSerializers::SerializableResource.new(records, each_serializer: TenantSerializer) }
+      pagy, records = pagy(Tenant.order(created_at: :desc))
+      render json: { data: ActiveModelSerializers::SerializableResource.new(records, each_serializer: TenantSerializer), meta: { page: pagy.page, pages: pagy.pages, count: pagy.count } }
     end
 
     def show
