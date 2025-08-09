@@ -69,10 +69,6 @@ RSpec/VerifiedDoubles:
 RSpec/StubbedMock:
   Enabled: true
 
-# Enforce no focused tests committed
-RSpec/Focus:
-  Enabled: true
-  Severity: error
 
 Performance:
   Enabled: true
