@@ -1,9 +1,9 @@
 module Dedup
   class TenantMatcher
     def call(fuzzy: false)
-      exact_dups = Tenant.group(:email).having('count(*) > 1').count.map do |email, count|
-        ids = Tenant.where(email: email).order(:created_at).pluck(:id)
-        { entity: 'tenants', criterion: 'email', value: email, ids: ids, count: count, score: 1.0 }
+      exact_dups = Tenant.group(:full_name).having('count(*) > 1').count.map do |full_name, count|
+        ids = Tenant.where(full_name: full_name).order(:created_at).pluck(:id)
+        { entity: 'tenants', criterion: 'full_name', value: full_name, ids: ids, count: count, score: 1.0 }
       end
       return exact_dups unless fuzzy
 

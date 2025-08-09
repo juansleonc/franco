@@ -21,7 +21,7 @@ RSpec.describe 'V1::Dedup', type: :request do
 
   it 'lists fuzzy candidates when enabled' do
     create(:tenant, full_name: 'Ana Gomez', email: 'ana@x.com')
-    create(:tenant, full_name: 'Ana Gomes', email: 'ana@x.com.mx')
+    create(:tenant, full_name: 'Ana Gomes', email: 'ana@x.com')
     get '/v1/dedup/tenants/candidates', params: { fuzzy: 'true' }, headers: auth_headers
     expect(response).to have_http_status(:ok)
     body = JSON.parse(response.body)

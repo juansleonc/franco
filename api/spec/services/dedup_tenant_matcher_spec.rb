@@ -1,11 +1,11 @@
 require 'rails_helper'
 
 RSpec.describe Dedup::TenantMatcher do
-  it 'finds exact duplicates by email' do
-    create(:tenant, email: 'dup@example.com', full_name: 'A')
-    create(:tenant, email: 'dup@example.com', full_name: 'B')
+  it 'finds exact duplicates by full_name' do
+    create(:tenant, email: 'a1@example.com', full_name: 'Same Name')
+    create(:tenant, email: 'a2@example.com', full_name: 'Same Name')
     results = described_class.new.call
-    group = results.find { |r| r[:criterion] == 'email' && r[:value] == 'dup@example.com' }
+    group = results.find { |r| r[:criterion] == 'full_name' && r[:value] == 'Same Name' }
     expect(group).to be_present
     expect(group[:ids].size).to eq(2)
   end
