@@ -1,6 +1,6 @@
 module Dedup
   class SupplierMatcher
-    def call
+    def call(fuzzy: false)
       res = []
       dup_by_tax = Supplier.group(:tax_id).having('count(*) > 1').count
       res += dup_by_tax.map do |tax_id, count|
