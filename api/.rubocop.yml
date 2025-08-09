@@ -6,3 +6,42 @@ inherit_gem: {rubocop-rails-omakase: rubocop.yml}
 # # Use `[a, [b, c]]` not `[ a, [ b, c ] ]`
 # Layout/SpaceInsideArrayLiteralBrackets:
 #   Enabled: false
+
+require:
+  - rubocop-rspec
+  - rubocop-performance
+  - rubocop-factory_bot
+
+AllCops:
+  NewCops: enable
+  SuggestExtensions: false
+  TargetRubyVersion: 3.3
+
+RSpec:
+  Language:
+    Expectations:
+      - expect
+    Mocks:
+      - allow
+      - allow_any_instance_of
+      - expect
+  MultipleExpectations:
+    Enabled: false
+  ExampleLength:
+    Max: 12
+  Focus:
+    Enabled: true
+  FilePath:
+    Enabled: true
+  DescribeClass:
+    Enabled: false
+
+FactoryBot/ConsistentFactoryName:
+  Enabled: true
+  EnabledFactories:
+    - user
+    - property
+    - tenant
+
+Performance:
+  Enabled: true
