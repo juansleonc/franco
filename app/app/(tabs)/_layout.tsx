@@ -54,6 +54,27 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
         }}
       />
+      <Tabs.Screen
+        name="banking"
+        options={{
+          title: 'Banking',
+          tabBarIcon: ({ color }) => <TabBarIcon name="bank" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="notifications"
+        options={{
+          title: 'Notifications',
+          tabBarIcon: ({ color }) => <TabBarIcon name="bell" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="dunning"
+        options={{
+          title: 'Dunning',
+          tabBarIcon: ({ color }) => <TabBarIcon name="envelope" color={color} />,
+        }}
+      />
     </Tabs>
   );
 }
