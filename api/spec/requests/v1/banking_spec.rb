@@ -16,7 +16,7 @@ RSpec.describe 'V1::Banking', type: :request do
     expect(body['data']).to be_an(Array)
   end
 
-  it 'syncs (stub)' do
+  it 'syncs via client' do
     post '/v1/banking/sync', headers: auth_headers
     expect(response).to have_http_status(:ok)
   end
