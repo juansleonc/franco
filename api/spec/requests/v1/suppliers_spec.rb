@@ -18,6 +18,13 @@ RSpec.describe "V1::Suppliers", type: :request do
       expect(data).to be_an(Array)
       expect(data.first["name"]).to eq("Prov A")
     end
+
+    it "includes pagination meta" do
+      get "/v1/suppliers", headers: auth_headers
+      expect(response).to have_http_status(:ok)
+      meta = JSON.parse(response.body)["meta"]
+      expect(meta).to include("page", "pages", "count")
+    end
   end
 
   describe "POST /v1/suppliers" do
@@ -30,7 +37,7 @@ RSpec.describe "V1::Suppliers", type: :request do
 
     it "returns 422 on invalid payload" do
       post "/v1/suppliers", params: { supplier: { name: "", tax_id: "", email: "" } }, headers: auth_headers
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
       body = JSON.parse(response.body)
       expect(body["errors"]).to be_an(Array)
     end

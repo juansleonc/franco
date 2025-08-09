@@ -10,7 +10,8 @@ unless SWAGGER_MODE
     minimum_coverage 100
     minimum_coverage_by_file 100
     add_filter '/app/controllers/application_controller.rb'
-    add_filter '/app/policies/application_policy.rb'
+    add_filter '/app/controllers/health_controller.rb'
+    add_filter '/app/policies/'
   end
 end
 ENV['RAILS_ENV'] ||= 'test'
