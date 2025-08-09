@@ -184,11 +184,9 @@ jobs:
         with:
           ruby-version: '3.3.4'
           bundler-cache: true
-      - name: Install gems (API bundle)
-        working-directory: ${{ github.workspace }}/api
-        run: bundle install --jobs 4 --retry 3
+      - name: Install Danger gem
+        run: gem install danger -N
       - name: Run Danger
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BUNDLE_GEMFILE: ${{ github.workspace }}/api/Gemfile
-        run: bundle exec danger --dangerfile=Dangerfile
+        run: danger --dangerfile=Dangerfile
