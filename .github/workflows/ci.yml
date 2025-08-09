@@ -185,8 +185,15 @@ jobs:
           ruby-version: '3.3.4'
           bundler-cache: true
       - name: Install Danger gem
-        run: gem install danger -N
+        run: |
+          gem install danger -N
+          gem install faraday-retry -N
       - name: Run Danger
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: danger --dangerfile=Dangerfile
+          DANGER_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: ${{ github.workspace }}
+        run: |
+          ls -la
+          test -f Dangerfile || (echo "Dangerfile missing" && exit 1)
+          danger --dangerfile="${{ github.workspace }}/Dangerfile"
