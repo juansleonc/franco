@@ -34,6 +34,10 @@ Rails.application.routes.draw do
         post :ignore
       end
     end
+
+    # Milestone 4: automation & dunning
+    post "invoicing/generate_monthly", to: "invoicing#generate_monthly"
+    get "dunning/candidates", to: "dunning#candidates"
   end
 
   # rails health
