@@ -1,5 +1,13 @@
 if ENV['CI'] || ENV['COVERAGE']
   require 'simplecov'
+  require 'simplecov_json_formatter'
+  require 'simplecov-lcov'
+
+  SimpleCov.formatters = SimpleCov::Formatter::MultiFormatter.new([
+    SimpleCov::Formatter::JSONFormatter,
+    SimpleCov::Formatter::LcovFormatter
+  ])
+
   SimpleCov.start 'rails' do
     enable_coverage :branch
     add_filter '/spec/'

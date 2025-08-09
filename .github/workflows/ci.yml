@@ -67,6 +67,12 @@ jobs:
           name: rails-coverage
           path: api/coverage/
           if-no-files-found: error
+      - name: Post Rails coverage as PR comment
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: MishaKav/jest-coverage-comment@v1
+        with:
+          coverage-summary-path: api/coverage/coverage-summary.json
+          title: Rails API Coverage
       - name: Generate OpenAPI (artifact)
         if: ${{ always() }}
         working-directory: ${{ github.workspace }}/api
@@ -132,3 +138,9 @@ jobs:
           name: app-coverage
           path: app/coverage/
           if-no-files-found: error
+      - name: Post RN coverage as PR comment
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: MishaKav/jest-coverage-comment@v1
+        with:
+          coverage-summary-path: app/coverage/coverage-summary.json
+          title: RN App Coverage
