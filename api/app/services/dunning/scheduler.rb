@@ -12,7 +12,8 @@ module Dunning
 
     def candidates
       invoices = Invoice.pending.where("due_on < ?", @as_of)
-      invoices.map { |inv| [ inv, stage_for(inv) ] }.select { |_, stage| stage }
+      invoices.map { |inv| [ inv, stage_for(inv) ] }
+              .select { |inv, stage| stage && !already_sent?(inv, stage) }
     end
 
     private
@@ -21,6 +22,10 @@ module Dunning
       days = (@as_of - invoice.due_on).to_i
       rule = STAGES.find { |s| days.between?(s[:min_days], s[:max_days]) }
       rule&.fetch(:name, nil)
+    end
+
+    def already_sent?(invoice, stage)
+      DunningEvent.where(invoice_id: invoice.id, stage: stage.to_s).exists?
     end
   end
 end

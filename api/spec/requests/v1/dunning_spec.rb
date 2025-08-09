@@ -18,5 +18,8 @@ RSpec.describe 'V1::Dunning', type: :request do
     expect(response).to have_http_status(:ok)
     data = JSON.parse(response.body)['data']
     expect(data.first['stage']).to eq('gentle')
+    # second call should be idempotent by unique event
+    get '/v1/dunning/candidates', params: { as_of: as_of.to_s }, headers: auth_headers
+    expect(JSON.parse(response.body)['data']).to be_empty
   end
 end
