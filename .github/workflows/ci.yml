@@ -14,9 +14,9 @@ jobs:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: test
+          POSTGRES_USER: franco
+          POSTGRES_PASSWORD: franco
+          POSTGRES_DB: franco_test
         ports: ["5432:5432"]
         options: >-
           --health-cmd pg_isready
@@ -36,7 +36,7 @@ jobs:
       - name: Setup DB
         run: |
           sudo apt-get update && sudo apt-get install -y libpq-dev
-          bundle exec rails db:prepare RAILS_ENV=test
+          DB_HOST=localhost DB_PORT=5432 DB_USER=franco DB_PASSWORD=franco bundle exec rails db:prepare RAILS_ENV=test
       - name: RSpec
         run: bundle exec rspec --format progress
       - name: Upload API coverage artifact
