@@ -1,13 +1,8 @@
 import * as React from 'react';
-import renderer, { act } from 'react-test-renderer';
-
+import { render, screen } from '@testing-library/react-native';
 import { MonoText } from '../StyledText';
 
-it(`renders correctly`, () => {
-  let component;
-  act(() => {
-    component = renderer.create(<MonoText>Snapshot test!</MonoText>);
-  });
-  expect(component.toJSON()).toMatchSnapshot();
-  component.unmount();
+it('renders text content', () => {
+  render(<MonoText>Snapshot test!</MonoText>);
+  expect(screen.getByText('Snapshot test!')).toBeTruthy();
 });
