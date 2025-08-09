@@ -117,4 +117,4 @@ jobs:
         run: npm run typecheck --silent
       - name: Jest
         working-directory: ${{ github.workspace }}/app
-        run: npm test -- --ci --runInBand
+        run: npm run test:ci
