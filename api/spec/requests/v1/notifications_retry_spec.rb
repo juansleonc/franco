@@ -15,7 +15,9 @@ RSpec.describe 'V1::Notifications retry', type: :request do
     inv = create(:invoice, tenant: tenant, contract: contract)
     NotificationLog.create!(invoice: inv, tenant: tenant, channel: 'email', status: 'failed', sent_at: Time.current)
 
-    post '/v1/notifications/retry_failed', params: { invoice_id: inv.id }, headers: auth_headers
+    expect {
+      post '/v1/notifications/retry_failed', params: { invoice_id: inv.id }, headers: auth_headers
+    }.to change { enqueued_jobs_count }.by_at_least(1)
     expect(response).to have_http_status(:ok)
     body = JSON.parse(response.body)
     expect(body['data']['enqueued']).to be >= 1
