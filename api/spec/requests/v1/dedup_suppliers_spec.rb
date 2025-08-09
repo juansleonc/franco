@@ -9,12 +9,13 @@ RSpec.describe 'V1::Dedup Suppliers', type: :request do
     { 'Authorization' => "Bearer #{token}" }
   end
 
-  it 'lists supplier duplicates by tax_id and email' do
-    create(:supplier, tax_id: 'T-1a', email: 's1@example.com', name: 'S1')
-    create(:supplier, tax_id: 'T-1a', email: 's3@example.com', name: 'S2')
+  it 'lists supplier duplicates by email (tax_id is unique)' do
+    # tax_id is unique by validation and index, so we simulate duplicates via same email
+    create(:supplier, tax_id: 'T-1a', email: 'dup-sup@example.com', name: 'S1')
+    create(:supplier, tax_id: 'T-2a', email: 'dup-sup@example.com', name: 'S2')
     get '/v1/dedup/suppliers/candidates', headers: auth_headers
     expect(response).to have_http_status(:ok)
     body = JSON.parse(response.body)
-    expect(body['data'].any? { |g| g['criterion'] == 'tax_id' }).to be true
+    expect(body['data'].any? { |g| g['criterion'] == 'email' }).to be true
   end
 end
