@@ -12,6 +12,8 @@ jobs:
     services:
       postgres:
         image: postgres:15-alpine
+        ports:
+          - 5432:5432
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -34,10 +36,18 @@ jobs:
       - name: RuboCop
         working-directory: ${{ github.workspace }}/api
         run: bin/rubocop -f github
+      - name: Wait for Postgres
+        shell: bash
+        run: |
+          for i in {1..60}; do
+            (echo > /dev/tcp/127.0.0.1/5432) >/dev/null 2>&1 && echo "Postgres is up" && break
+            echo "Waiting for Postgres... ($i)"
+            sleep 1
+          done
       - name: DB prepare
         working-directory: ${{ github.workspace }}/api
         env:
-          DB_HOST: postgres
+          DB_HOST: 127.0.0.1
           DB_USER: postgres
           DB_PASSWORD: postgres
           RAILS_ENV: test
@@ -45,7 +55,7 @@ jobs:
       - name: RSpec
         working-directory: ${{ github.workspace }}/api
         env:
-          DB_HOST: postgres
+          DB_HOST: 127.0.0.1
           DB_USER: postgres
           DB_PASSWORD: postgres
           RAILS_ENV: test
@@ -54,7 +64,7 @@ jobs:
         if: ${{ always() }}
         working-directory: ${{ github.workspace }}/api
         env:
-          DB_HOST: postgres
+          DB_HOST: 127.0.0.1
           DB_USER: postgres
           DB_PASSWORD: postgres
           RAILS_ENV: test
