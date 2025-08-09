@@ -27,10 +27,10 @@ module Fees
     private
 
     def monthly_collected_cents(contract)
-      # sum of allocations applied to invoices of this contract in the period
-      Invoice.where(contract_id: contract.id, issue_on: @month_start..@month_end)
-             .joins(:payment_allocations)
-             .sum(:amount_cents)
+      # Sum of allocation amounts applied to invoices of this contract in the period
+      PaymentAllocation.joins(:invoice)
+                       .where(invoices: { contract_id: contract.id, issue_on: @month_start..@month_end })
+                       .sum(:amount_cents)
     end
   end
 end
