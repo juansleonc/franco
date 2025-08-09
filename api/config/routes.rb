@@ -57,6 +57,8 @@ Rails.application.routes.draw do
       post "dunning_email", to: "notifications#dunning_email"
       post "dunning_sms", to: "notifications#dunning_sms"
       get  "logs", to: "notifications#logs"
+      get  "logs.csv", to: "notifications#logs_csv"
+      post "retry_failed", to: "notifications#retry_failed"
     end
 
     scope :banking do

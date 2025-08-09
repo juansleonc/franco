@@ -52,6 +52,38 @@ module V1
       render json: { data: scope.map { |l| serialize_log(l) } }
     end
 
+    def logs_csv
+      authorize :notifications, :index?
+      scope = NotificationLog.all
+      scope = scope.where(invoice_id: params[:invoice_id]) if params[:invoice_id].present?
+      scope = scope.where(tenant_id: params[:tenant_id]) if params[:tenant_id].present?
+      scope = scope.where(channel: params[:channel]) if params[:channel].present?
+      scope = scope.where('sent_at >= ?', Time.parse(params[:since])) if params[:since].present?
+      scope = scope.order(sent_at: :desc)
+      csv = CSV.generate do |csvio|
+        csvio << %w[id invoice_id tenant_id channel status error sent_at]
+        scope.find_each do |l|
+          csvio << [l.id, l.invoice_id, l.tenant_id, l.channel, l.status, l.error, l.sent_at]
+        end
+      end
+      send_data csv, filename: "notification_logs.csv", type: 'text/csv'
+    end
+
+    def retry_failed
+      authorize :notifications, :create?
+      scope = NotificationLog.where(status: 'failed')
+      scope = scope.where(invoice_id: params[:invoice_id]) if params[:invoice_id].present?
+      scope = scope.where(tenant_id: params[:tenant_id]) if params[:tenant_id].present?
+      scope = scope.where(channel: params[:channel]) if params[:channel].present?
+      count = 0
+      scope.find_each do |log|
+        channels = [log.channel]
+        Dunning::SendNotificationsJob.perform_later(invoice_id: log.invoice_id, channels: channels)
+        count += 1
+      end
+      render json: { data: { enqueued: count } }
+    end
+
     private
 
     def serialize_log(l)

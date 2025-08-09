@@ -21,4 +21,26 @@ RSpec.describe 'V1::Notifications Logs', type: :request do
     expect(body['data'].length).to eq(1)
     expect(body['data'].first['channel']).to eq('email')
   end
+
+  it 'exports logs as CSV' do
+    tenant = create(:tenant, email: 't2@example.com')
+    contract = create(:contract, tenant: tenant)
+    inv = create(:invoice, tenant: tenant, contract: contract)
+    NotificationLog.create!(invoice: inv, tenant: tenant, channel: 'email', status: 'failed', sent_at: Time.current)
+    get '/v1/notifications/logs.csv', params: { tenant_id: tenant.id }, headers: auth_headers
+    expect(response).to have_http_status(:ok)
+    expect(response.headers['Content-Type']).to include('text/csv')
+    expect(response.body).to include('invoice_id')
+  end
+
+  it 'retries failed logs enqueueing jobs' do
+    tenant = create(:tenant, email: 't3@example.com')
+    contract = create(:contract, tenant: tenant)
+    inv = create(:invoice, tenant: tenant, contract: contract)
+    NotificationLog.create!(invoice: inv, tenant: tenant, channel: 'email', status: 'failed', sent_at: Time.current)
+    post '/v1/notifications/retry_failed', params: { tenant_id: tenant.id, channel: 'email' }, headers: auth_headers
+    expect(response).to have_http_status(:ok)
+    body = JSON.parse(response.body)
+    expect(body['data']['enqueued']).to be >= 1
+  end
 end
