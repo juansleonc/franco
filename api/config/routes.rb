@@ -38,6 +38,10 @@ Rails.application.routes.draw do
     # Milestone 4: automation & dunning
     post "invoicing/generate_monthly", to: "invoicing#generate_monthly"
     get "dunning/candidates", to: "dunning#candidates"
+
+    # Milestone 5: admin fees & owner statements
+    post "fees/calculate", to: "fees#calculate"
+    resources :owner_statements, only: %i[index show]
   end
 
   # rails health
