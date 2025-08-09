@@ -64,7 +64,7 @@ module V1
       scope = scope.where(channel: params[:channel]) if params[:channel].present?
       scope = scope.where("sent_at >= ?", Time.parse(params[:since])) if params[:since].present?
     scope = scope.order(sent_at: :desc)
-    require 'csv'
+    require "csv"
       csv = CSV.generate do |csvio|
         csvio << %w[id invoice_id tenant_id channel status error sent_at]
       scope.find_each do |l|
