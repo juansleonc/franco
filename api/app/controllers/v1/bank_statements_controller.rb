@@ -30,18 +30,18 @@ module V1
     private
 
     def parse_bank_csv!(statement:, csv_string:)
-      require 'csv'
+      require "csv"
       CSV.parse(csv_string, headers: true).each do |row|
-        posted_on = Date.parse(row['date'] || row['posted_on'] || row['Date']) rescue nil
-        amount = row['amount'] || row['Amount'] || row['import'] || row['importe']
-        desc = row['description'] || row['memo'] || row['Description'] || row['concepto']
+        posted_on = Date.parse(row["date"] || row["posted_on"] || row["Date"]) rescue nil
+        amount = row["amount"] || row["Amount"] || row["import"] || row["importe"]
+        desc = row["description"] || row["memo"] || row["Description"] || row["concepto"]
         next unless posted_on && amount
         StatementLine.create!(
           bank_statement: statement,
           posted_on: posted_on,
           description: desc,
           amount_cents: (amount.to_f * 100).to_i,
-          match_status: 'unmatched'
+          match_status: "unmatched"
         )
       end
     end
