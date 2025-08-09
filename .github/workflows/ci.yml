@@ -166,3 +166,24 @@ jobs:
         with:
           lcov-file: app/coverage/lcov.info
           github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  danger:
+    name: Danger (PR review automation)
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3.4'
+          bundler-cache: true
+      - name: Install gems (API bundle)
+        working-directory: ${{ github.workspace }}/api
+        run: bundle install --jobs 4 --retry 3
+      - name: Run Danger
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BUNDLE_GEMFILE: ${{ github.workspace }}/api/Gemfile
+        run: bundle exec danger --dangerfile=Dangerfile
