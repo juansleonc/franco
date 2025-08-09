@@ -5,6 +5,8 @@ class Invoice < ApplicationRecord
 
   enum :status, { pending: "pending", partial: "partial", paid: "paid" }, prefix: true
 
+  scope :pending, -> { where(status: "pending") }
+
   validates :issue_on, :due_on, :amount_cents, :balance_cents, :currency, presence: true
   validates :amount_cents, numericality: { greater_than: 0 }
   validates :balance_cents, numericality: { greater_than_or_equal_to: 0 }
