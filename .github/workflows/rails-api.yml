@@ -1,0 +1,69 @@
+name: Rails API - Lint & Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: franco_test
+        options: >-
+          --health-cmd "pg_isready -U postgres -h 127.0.0.1" \
+          --health-interval 10s \
+          --health-timeout 5s \
+          --health-retries 5
+
+    env:
+      RAILS_ENV: test
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      BUNDLE_GEMFILE: ${{ github.workspace }}/api/Gemfile
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3.4'
+          bundler-cache: true
+
+      - name: Show Ruby and Bundler versions
+        run: |
+          ruby -v
+          bundle -v
+
+      - name: Wait for Postgres
+        shell: bash
+        run: |
+          for i in {1..60}; do
+            (echo > /dev/tcp/127.0.0.1/5432) >/dev/null 2>&1 && echo "Postgres is up" && break
+            echo "Waiting for Postgres... ($i)"
+            sleep 1
+          done
+
+      - name: Prepare database
+        working-directory: api
+        run: bundle exec rails db:prepare --trace
+
+      - name: Run RuboCop
+        working-directory: api
+        run: bundle exec rubocop --parallel
+
+      - name: Run RSpec
+        working-directory: api
+        run: bundle exec rspec --format progress --color
