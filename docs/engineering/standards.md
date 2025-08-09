@@ -39,6 +39,9 @@ This document defines baseline code quality and architecture standards for the F
 - Coverage & CI
   - CI must pass: RuboCop, RSpec, Brakeman, Bundler Audit
   - YAML/Markdown lint must be clean
+  - Always run tests inside Docker to match CI environment:
+    - `docker compose exec api bash -lc "RAILS_ENV=test bundle exec rspec --format progress"`
+    - Do not commit code if the above command is not green
 
 ## Linting & Style
 
