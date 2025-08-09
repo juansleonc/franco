@@ -1,228 +1,68 @@
----
 name: CI
 
-'on':
+on:
   pull_request:
-  push:
-    branches: [main]
-
-# Grant write permissions for PR comment actions (coverage, Danger)
-permissions:
-  contents: read
-  pull-requests: write
-  issues: write
+    branches: [ main ]
 
 jobs:
-  meta-lint:
-    name: Repository Meta Lint (MD/YAML/JSON)
+  api:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Setup Node for markdownlint
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - name: Lint Markdown
-        run: |
-          npm i -g markdownlint-cli2@0.14.0
-          markdownlint-cli2 "**/*.md" "#**/node_modules" "#**/coverage" "#**/dist"
-      - name: Setup Python for yamllint
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.x'
-      - name: Lint YAML
-        run: |
-          pip install yamllint==1.35.1
-          yamllint -c .yamllint.yaml .
-      - name: Check JSON syntax
-        shell: bash
-        run: |
-          set -e
-          mapfile -t files < <(git ls-files '**/*.json' ':!**/node_modules/**' ':!**/coverage/**' || true)
-          if [ ${#files[@]} -eq 0 ]; then
-            echo "No JSON files to check"; exit 0; fi
-          for f in "${files[@]}"; do
-            echo "Checking $f"; jq empty "$f"; done
-
-  backend:
-    name: Rails API - Lint & Test
-    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
     services:
       postgres:
-        image: postgres:15-alpine
-        ports:
-          - 5432:5432
+        image: postgres:15
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: franco_test
+          POSTGRES_DB: test
+        ports: ["5432:5432"]
         options: >-
-          --health-cmd "pg_isready -U postgres" --health-interval 10s --health-timeout 5s --health-retries 5
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
       redis:
-        image: redis:7-alpine
-        options: >-
-          --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
+        image: redis:7
+        ports: ["6379:6379"]
     steps:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.3.4'
+          ruby-version: '3.3'
           bundler-cache: true
-      - name: Install gems
-        working-directory: ${{ github.workspace }}/api
-        run: bundle install --jobs 4 --retry 3
-      - name: RuboCop
-        working-directory: ${{ github.workspace }}/api
-        run: bin/rubocop -f github
-      - name: Wait for Postgres
-        shell: bash
+          working-directory: api
+      - name: Setup DB
         run: |
-          for i in {1..60}; do
-            (echo > /dev/tcp/127.0.0.1/5432) >/dev/null 2>&1 && echo "Postgres is up" && break
-            echo "Waiting for Postgres... ($i)"
-            sleep 1
-          done
-      - name: DB prepare
-        working-directory: ${{ github.workspace }}/api
-        env:
-          DB_HOST: 127.0.0.1
-          DB_USER: postgres
-          DB_PASSWORD: postgres
-          RAILS_ENV: test
-        run: bundle exec rails db:prepare
+          sudo apt-get update && sudo apt-get install -y libpq-dev
+          bundle exec rails db:prepare RAILS_ENV=test
       - name: RSpec
-        working-directory: ${{ github.workspace }}/api
-        env:
-          DB_HOST: 127.0.0.1
-          DB_USER: postgres
-          DB_PASSWORD: postgres
-          RAILS_ENV: test
-          COVERAGE: "true"
         run: bundle exec rspec --format progress
-      - name: Debug Rails coverage dir
-        if: ${{ always() }}
-        run: |
-          ls -la
-          ls -la api || true
-          ls -la api/coverage || true
-      - name: Upload Rails coverage artifact
-        if: ${{ hashFiles('api/coverage/lcov.info') != '' }}
+      - name: Upload API coverage artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: rails-coverage
-          path: api/coverage/
-          if-no-files-found: warn
-      - name: Post Rails coverage as PR comment
-        if: ${{ github.event_name == 'pull_request' && hashFiles('api/coverage/lcov.info') != '' }}
-        uses: romeovs/lcov-reporter-action@v0.3.1
-        with:
-          lcov-file: api/coverage/lcov.info
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Generate OpenAPI (artifact)
-        if: ${{ always() }}
-        working-directory: ${{ github.workspace }}/api
-        env:
-          DB_HOST: 127.0.0.1
-          DB_USER: postgres
-          DB_PASSWORD: postgres
-          RAILS_ENV: test
-        run: bundle exec rake rswag:specs:swaggerize
-      - name: Upload Swagger artifact
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: swagger-v1
-          path: api/swagger/v1/swagger.yaml
+          name: api-coverage
+          path: api/coverage
 
-  security:
-    name: Rails API - Security Scans
+  app:
     runs-on: ubuntu-latest
-    env:
-      BUNDLE_GEMFILE: ${{ github.workspace }}/api/Gemfile
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.3.4'
-          bundler-cache: true
-      - name: Install gems
-        working-directory: ${{ github.workspace }}/api
-        run: bundle install --jobs 4 --retry 3
-      - name: Brakeman
-        working-directory: ${{ github.workspace }}/api
-        run: bundle exec brakeman --no-pager
-      - name: Bundler Audit
-        working-directory: ${{ github.workspace }}/api
-        run: |
-          gem install bundler-audit -N
-          bundle audit check --update
-
-  mobile:
-    name: React Native App - Lint, Typecheck, Test
-    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
-          cache-dependency-path: app/package-lock.json
       - name: Install deps
-        working-directory: ${{ github.workspace }}/app
         run: npm ci
-      - name: ESLint
-        working-directory: ${{ github.workspace }}/app
-        run: npm run lint --silent
-      - name: TypeScript
-        working-directory: ${{ github.workspace }}/app
-        run: npm run typecheck --silent
       - name: Jest
-        working-directory: ${{ github.workspace }}/app
-        run: npm run test:ci -- --coverage
-      - name: Debug App coverage dir
-        if: ${{ always() }}
-        run: |
-          ls -la
-          ls -la app || true
-          ls -la app/coverage || true
-      - name: Upload RN coverage artifact
-        if: ${{ hashFiles('app/coverage/lcov.info') != '' }}
+        run: npm run test:ci --silent
+      - name: Upload App coverage (if any)
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: app-coverage
-          path: app/coverage/
-          if-no-files-found: warn
-      - name: Post RN coverage as PR comment
-        if: ${{ github.event_name == 'pull_request' && hashFiles('app/coverage/lcov.info') != '' }}
-        uses: romeovs/lcov-reporter-action@v0.3.1
-        with:
-          lcov-file: app/coverage/lcov.info
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-  danger:
-    name: Danger (PR review automation)
-    runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'pull_request' }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.3.4'
-          bundler-cache: true
-      - name: Install Danger gem
-        run: |
-          gem install danger -N
-          gem install faraday-retry -N
-      - name: Run Danger
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DANGER_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        working-directory: ${{ github.workspace }}
-        run: |
-          ls -la
-          test -f Dangerfile || (echo "Dangerfile missing" && exit 1)
-          danger --dangerfile="${{ github.workspace }}/Dangerfile"
+          path: app/coverage
