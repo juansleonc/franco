@@ -34,4 +34,16 @@ RSpec.describe 'V1::Notifications', type: :request do
     post '/v1/notifications/dunning_sms', params: { invoice_id: invoice.id }, headers: auth_headers
     expect(response).to have_http_status(:ok)
   end
+
+  it 'lists notification logs filtered by invoice' do
+    tenant = create(:tenant, email: 't@example.com', full_name: 'T')
+    contract = create(:contract, tenant: tenant)
+    invoice = create(:invoice, tenant: tenant, contract: contract)
+    NotificationLog.create!(invoice: invoice, tenant: tenant, channel: 'email', status: 'sent', sent_at: Time.current)
+    get '/v1/notifications/logs', params: { invoice_id: invoice.id }, headers: auth_headers
+    expect(response).to have_http_status(:ok)
+    body = JSON.parse(response.body)
+    expect(body['data']).not_to be_empty
+    expect(body['data'].first['invoice_id']).to eq(invoice.id)
+  end
 end

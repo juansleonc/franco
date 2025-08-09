@@ -56,6 +56,7 @@ Rails.application.routes.draw do
       post "send_test_sms", to: "notifications#send_test_sms"
       post "dunning_email", to: "notifications#dunning_email"
       post "dunning_sms", to: "notifications#dunning_sms"
+      get  "logs", to: "notifications#logs"
     end
 
     namespace :banking do

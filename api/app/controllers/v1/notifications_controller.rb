@@ -32,5 +32,38 @@ module V1
       Sms.client.deliver(to: invoice.tenant.phone, body: Dunning::SmsTemplates.overdue(invoice: invoice))
       render json: { data: { sent: true, invoice_id: invoice.id } }
     end
+
+    def logs
+      authorize :notifications, :index?
+      scope = NotificationLog.all
+      if params[:invoice_id].present?
+        scope = scope.where(invoice_id: params[:invoice_id])
+      end
+      if params[:tenant_id].present?
+        scope = scope.where(tenant_id: params[:tenant_id])
+      end
+      if params[:channel].present?
+        scope = scope.where(channel: params[:channel])
+      end
+      if params[:since].present?
+        scope = scope.where('sent_at >= ?', Time.parse(params[:since]))
+      end
+      scope = scope.order(sent_at: :desc).limit((params[:limit] || 100).to_i)
+      render json: { data: scope.map { |l| serialize_log(l) } }
+    end
+
+    private
+
+    def serialize_log(l)
+      {
+        id: l.id,
+        invoice_id: l.invoice_id,
+        tenant_id: l.tenant_id,
+        channel: l.channel,
+        status: l.status,
+        error: l.error,
+        sent_at: l.sent_at
+      }
+    end
   end
 end
