@@ -1,11 +1,11 @@
 pre-commit:
-  parallel: true
+  parallel: false
   commands:
+    api_rspec:
+      run: docker compose exec -T api bash -lc "RAILS_ENV=test bundle exec rails db:prepare && bundle exec rspec"
+      stage_fixed: false
     api_rubocop:
-      run: docker compose run --rm -T api sh -lc "bundle install && bundle exec rubocop -A && bundle exec rubocop"
-      stage_fixed: true
-    api_rspec_fast:
-      run: docker compose run --rm -T api sh -lc "RAILS_ENV=test bundle exec rails db:prepare && bundle exec rspec --fail-fast"
+      run: docker compose exec -T api bash -lc "bundle exec rubocop -A && bundle exec rubocop"
       stage_fixed: true
     app_eslint:
       run: cd app && npm run lint --silent
