@@ -1,0 +1,2 @@
+class PropertyPolicy < ApplicationPolicy
+end

@@ -5,10 +5,13 @@ require_relative '../config/environment'
 # Prevent database truncation if the environment is production
 abort("The Rails environment is running in production mode!") if Rails.env.production?
 require 'rspec/rails'
+require 'devise'
 
 Rails.application.config.hosts.clear if Rails.application.config.respond_to?(:hosts)
 
 RSpec.configure do |config|
+  config.include Devise::Test::IntegrationHelpers, type: :request
+  config.include FactoryBot::Syntax::Methods
   config.fixture_paths = [ Rails.root.join('spec/fixtures') ]
   config.use_transactional_fixtures = true
   config.infer_spec_type_from_file_location!

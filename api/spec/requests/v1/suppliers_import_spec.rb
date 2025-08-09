@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe "V1::Suppliers import", type: :request do
-  let!(:user) { User.create!(email: "admin@example.com", password: "Password123!", password_confirmation: "Password123!") }
+  let!(:user) { create(:user, email: "admin@example.com", password: "Password123!", password_confirmation: "Password123!") }
 
   def auth_headers
     post "/v1/auth/login", params: { email: user.email, password: "Password123!" }
@@ -27,7 +27,7 @@ RSpec.describe "V1::Suppliers import", type: :request do
   end
 
   it "persists when dry_run is false and updates duplicates" do
-    Supplier.create!(name: "Old", tax_id: "TAX1", email: "old@example.com", created_by_user: user)
+    create(:supplier, name: "Old", tax_id: "TAX1", email: "old@example.com", created_by_user: user)
 
     csv = <<~CSV
       legalName,taxId,email

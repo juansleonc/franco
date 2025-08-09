@@ -13,6 +13,13 @@ Rails.application.routes.draw do
         post :import
       end
     end
+    resources :properties
+    resources :tenants
+    resources :contracts do
+      collection do
+        post :schedule_preview
+      end
+    end
   end
 
   # rails health

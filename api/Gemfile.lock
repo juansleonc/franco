@@ -314,6 +314,9 @@ GEM
     rubocop-ast (1.46.0)
       parser (>= 3.3.7.2)
       prism (~> 1.4)
+    rubocop-factory_bot (2.27.1)
+      lint_roller (~> 1.1)
+      rubocop (~> 1.72, >= 1.72.1)
     rubocop-performance (1.25.0)
       lint_roller (~> 1.1)
       rubocop (>= 1.75.0, < 2.0)
@@ -328,6 +331,9 @@ GEM
       rubocop (>= 1.72)
       rubocop-performance (>= 1.24)
       rubocop-rails (>= 2.30)
+    rubocop-rspec (3.6.0)
+      lint_roller (~> 1.1)
+      rubocop (~> 1.72, >= 1.72.1)
     ruby-progressbar (1.13.0)
     securerandom (0.4.1)
     sentry-rails (5.26.0)
@@ -397,7 +403,10 @@ DEPENDENCIES
   rails (~> 8.0)
   rspec-rails
   rswag
+  rubocop-factory_bot
+  rubocop-performance
   rubocop-rails-omakase
+  rubocop-rspec
   sentry-rails
   sentry-ruby
   sidekiq
