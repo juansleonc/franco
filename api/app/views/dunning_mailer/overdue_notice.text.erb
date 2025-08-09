@@ -1,0 +1,10 @@
+Hello <%= @tenant.full_name %>,
+
+This is a friendly reminder that your rent invoice is due on <%= @invoice.due_on %>.
+
+Amount due: <%= @invoice.balance_cents / 100.0 %> <%= @invoice.currency %>
+
+Please make the payment at your earliest convenience. If you've already paid, please disregard this message.
+
+Thank you,
+Franco Property Management

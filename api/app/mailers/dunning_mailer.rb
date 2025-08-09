@@ -6,4 +6,11 @@ class DunningMailer < ApplicationMailer
       format.html { render html: ERB::Util.html_escape(@body).gsub("\n", '<br>').html_safe }
     end
   end
+
+  def overdue_notice(invoice:)
+    @invoice = invoice
+    @tenant = invoice.tenant
+    subject = "Payment reminder — Invoice ##{invoice.id} due #{invoice.due_on}"
+    mail(to: @tenant.email, subject: subject)
+  end
 end

@@ -18,4 +18,20 @@ RSpec.describe 'V1::Notifications', type: :request do
     post '/v1/notifications/send_test_sms', params: { to: '+123456' }, headers: auth_headers
     expect(response).to have_http_status(:ok)
   end
+
+  it 'sends dunning email for invoice' do
+    tenant = create(:tenant, email: 't@example.com', full_name: 'T')
+    contract = create(:contract, tenant: tenant)
+    invoice = create(:invoice, tenant: tenant, contract: contract, balance_cents: 12345)
+    post '/v1/notifications/dunning_email', params: { invoice_id: invoice.id }, headers: auth_headers
+    expect(response).to have_http_status(:ok)
+  end
+
+  it 'sends dunning sms for invoice (null client)' do
+    tenant = create(:tenant, email: 't@example.com', full_name: 'T', phone: '+100000')
+    contract = create(:contract, tenant: tenant)
+    invoice = create(:invoice, tenant: tenant, contract: contract, balance_cents: 12345)
+    post '/v1/notifications/dunning_sms', params: { invoice_id: invoice.id }, headers: auth_headers
+    expect(response).to have_http_status(:ok)
+  end
 end
