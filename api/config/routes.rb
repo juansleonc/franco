@@ -46,12 +46,12 @@ Rails.application.routes.draw do
     resources :owner_statements, only: %i[index show]
 
     # Milestone 6: dedup, notifications, banking (optional)
-    namespace :dedup do
+    scope :dedup do
       get ":entity/candidates", to: "dedup#candidates", as: :candidates
+      post "merge", to: "dedup#merge"
     end
-    post "dedup/merge", to: "dedup#merge"
 
-    namespace :notifications do
+    scope :notifications do
       post "send_test", to: "notifications#send_test"
       post "send_test_sms", to: "notifications#send_test_sms"
       post "dunning_email", to: "notifications#dunning_email"
@@ -59,7 +59,7 @@ Rails.application.routes.draw do
       get  "logs", to: "notifications#logs"
     end
 
-    namespace :banking do
+    scope :banking do
       get "accounts", to: "banking#accounts"
       post "sync", to: "banking#sync"
     end

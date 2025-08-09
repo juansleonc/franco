@@ -10,8 +10,8 @@ RSpec.describe 'V1::Dedup', type: :request do
   end
 
   it 'lists tenant duplicate candidates' do
-    create(:tenant, email: 'dup@example.com')
-    create(:tenant, email: 'dup@example.com')
+    create(:tenant, email: 'dup1@example.com')
+    create(:tenant, email: 'dup1@example.com')
     get '/v1/dedup/tenants/candidates', headers: auth_headers
     expect(response).to have_http_status(:ok)
     body = JSON.parse(response.body)
@@ -29,8 +29,8 @@ RSpec.describe 'V1::Dedup', type: :request do
   end
 
   it 'merges tenants' do
-    t1 = create(:tenant, email: 'a@example.com')
-    t2 = create(:tenant, email: 'a@example.com')
+    t1 = create(:tenant, email: 'a1@example.com')
+    t2 = create(:tenant, email: 'a1@example.com')
     post '/v1/dedup/merge', params: { entity: 'tenants', target_id: t1.id, source_ids: [t2.id] }, headers: auth_headers, as: :json
     expect(response).to have_http_status(:ok)
     expect(Tenant.where(id: t2.id)).to be_empty
