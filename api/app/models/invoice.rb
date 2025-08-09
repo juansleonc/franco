@@ -14,11 +14,11 @@ class Invoice < ApplicationRecord
   def recalc_status!
     computed = if balance_cents.to_i <= 0
                  "paid"
-               elsif balance_cents.to_i < amount_cents.to_i
+    elsif balance_cents.to_i < amount_cents.to_i
                  "partial"
-               else
+    else
                  "pending"
-               end
+    end
     update!(status: computed)
   end
 
@@ -27,10 +27,10 @@ class Invoice < ApplicationRecord
   def compute_status_from_balance
     self.status = if balance_cents.to_i <= 0
                     "paid"
-                  elsif balance_cents.to_i < amount_cents.to_i
+    elsif balance_cents.to_i < amount_cents.to_i
                     "partial"
-                  else
+    else
                     "pending"
-                  end
+    end
   end
 end
