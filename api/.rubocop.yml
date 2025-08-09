@@ -51,7 +51,9 @@ RSpec/Focus:
   Enabled: true
 RSpec/DescribeClass:
   Enabled: false
-RSpec/FilePath:
+RSpec/SpecFilePathFormat:
+  Enabled: true
+RSpec/SpecFilePathSuffix:
   Enabled: true
 
 Performance:
