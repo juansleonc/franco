@@ -27,6 +27,13 @@ RSpec.describe "V1::Suppliers", type: :request do
       body = JSON.parse(response.body)
       expect(body.dig("data", "tax_id")).to eq("T2")
     end
+
+    it "returns 422 on invalid payload" do
+      post "/v1/suppliers", params: { supplier: { name: "", tax_id: "", email: "" } }, headers: auth_headers
+      expect(response).to have_http_status(:unprocessable_entity)
+      body = JSON.parse(response.body)
+      expect(body["errors"]).to be_an(Array)
+    end
   end
 
   describe "POST /v1/suppliers/import" do
