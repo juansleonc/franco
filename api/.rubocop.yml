@@ -25,16 +25,38 @@ RSpec:
       - allow
       - allow_any_instance_of
       - expect
-  MultipleExpectations:
-    Enabled: false
-  ExampleLength:
-    Max: 12
-  Focus:
-    Enabled: true
-  FilePath:
-    Enabled: true
-  DescribeClass:
-    Enabled: false
+
+# RSpec cops configuration
+RSpec/MultipleExpectations:
+  Max: 5
+  Exclude:
+    - 'spec/integration/**/*'
+RSpec/ExampleLength:
+  Max: 20
+  Exclude:
+    - 'spec/integration/**/*'
+RSpec/EmptyExampleGroup:
+  Exclude:
+    - 'spec/integration/**/*'
+RSpec/EmptyLineAfterFinalLet:
+  Exclude:
+    - 'spec/integration/**/*'
+RSpec/VariableName:
+  Exclude:
+    - 'spec/integration/**/*'
+RSpec/LetSetup:
+  Exclude:
+    - 'spec/integration/**/*'
+RSpec/Focus:
+  Enabled: true
+RSpec/DescribeClass:
+  Enabled: false
+RSpec/FilePath:
+  Enabled: true
 
 Performance:
   Enabled: true
+
+Layout/SpaceInsideArrayLiteralBrackets:
+  Exclude:
+    - 'spec/integration/**/*'
