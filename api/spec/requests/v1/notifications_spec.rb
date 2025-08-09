@@ -11,7 +11,7 @@ RSpec.describe 'V1::Notifications', type: :request do
 
   it 'sends a test email' do
     # Stub delivery to avoid SMTP in test
-    allow(DunningMailer).to receive(:test_email).and_return(double(deliver_now: true))
+    allow(DunningMailer).to receive(:test_email).and_return(instance_double(ActionMailer::MessageDelivery, deliver_now: true))
     post '/v1/notifications/send_test', params: { to: 'test@example.com', subject: 'Hi', body: 'Hello' }, headers: auth_headers
     expect(response).to have_http_status(:ok)
   end
@@ -24,7 +24,7 @@ RSpec.describe 'V1::Notifications', type: :request do
   end
 
   it 'sends dunning email for invoice' do
-    allow(DunningMailer).to receive(:overdue_notice).and_return(double(deliver_now: true))
+    allow(DunningMailer).to receive(:overdue_notice).and_return(instance_double(ActionMailer::MessageDelivery, deliver_now: true))
     tenant = create(:tenant, email: 't@example.com', full_name: 'T')
     contract = create(:contract, tenant: tenant)
     invoice = create(:invoice, tenant: tenant, contract: contract, balance_cents: 12345)
