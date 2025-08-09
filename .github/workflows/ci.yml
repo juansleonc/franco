@@ -66,6 +66,7 @@ jobs:
         with:
           name: rails-coverage
           path: api/coverage/
+          if-no-files-found: error
       - name: Generate OpenAPI (artifact)
         if: ${{ always() }}
         working-directory: ${{ github.workspace }}/api
@@ -130,3 +131,4 @@ jobs:
         with:
           name: app-coverage
           path: app/coverage/
+          if-no-files-found: error

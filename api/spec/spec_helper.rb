@@ -4,6 +4,8 @@ if ENV['CI'] || ENV['COVERAGE']
     enable_coverage :branch
     add_filter '/spec/'
   end
+  SimpleCov.minimum_coverage 70
+  SimpleCov.minimum_branch_coverage 50
   SimpleCov.coverage_dir 'coverage'
 end
 
