@@ -2,10 +2,9 @@ require 'swagger_helper'
 
 RSpec.describe 'v1/properties', type: :request do
   let!(:user) { create(:user, email: 'admin@example.com', password: 'Password123!', password_confirmation: 'Password123!') }
-  let!(:auth) do
+  let!(:auth_token) do
     post "/v1/auth/login", params: { email: user.email, password: 'Password123!' }
-    token = JSON.parse(response.body)['token']
-    { 'Authorization' => "Bearer #{token}" }
+    JSON.parse(response.body)['token']
   end
   path '/v1/properties' do
     get 'List properties' do
@@ -14,7 +13,7 @@ RSpec.describe 'v1/properties', type: :request do
       security [ bearerAuth: [] ]
       parameter name: :Authorization, in: :header, schema: { type: :string }, description: 'Bearer token'
       response '200', 'ok' do
-        let(:'Authorization') { auth['Authorization'] }
+        let(:'Authorization') { "Bearer #{auth_token}" }
         run_test!
       end
     end
@@ -30,7 +29,7 @@ RSpec.describe 'v1/properties', type: :request do
         required: %w[name address]
       }
       response '201', 'created' do
-        let(:'Authorization') { auth['Authorization'] }
+        let(:'Authorization') { "Bearer #{auth_token}" }
         let(:property) { { name: 'Casa', address: 'Calle 1' } }
         run_test!
       end
@@ -46,7 +45,7 @@ RSpec.describe 'v1/properties', type: :request do
       security [ bearerAuth: [] ]
       parameter name: :Authorization, in: :header, schema: { type: :string }
       response '200', 'ok' do
-        let(:'Authorization') { auth['Authorization'] }
+        let(:'Authorization') { "Bearer #{auth_token}" }
         let(:id) { create(:property, name: 'Casa', address: 'Calle 1').id }
         run_test!
       end
@@ -62,7 +61,7 @@ RSpec.describe 'v1/properties', type: :request do
         properties: { name: { type: :string } }
       }
       response '200', 'updated' do
-        let(:'Authorization') { auth['Authorization'] }
+        let(:'Authorization') { "Bearer #{auth_token}" }
         let(:id) { create(:property, name: 'Casa', address: 'Calle 1').id }
         let(:property) { { name: 'New' } }
         run_test!
@@ -74,7 +73,7 @@ RSpec.describe 'v1/properties', type: :request do
       security [ bearerAuth: [] ]
       parameter name: :Authorization, in: :header, schema: { type: :string }
       response '204', 'deleted' do
-        let(:'Authorization') { auth['Authorization'] }
+        let(:'Authorization') { "Bearer #{auth_token}" }
         let(:id) { create(:property, name: 'Casa', address: 'Calle 1').id }
         run_test!
       end
