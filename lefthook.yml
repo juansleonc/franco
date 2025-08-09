@@ -2,7 +2,7 @@ pre-commit:
   parallel: true
   commands:
     api_rubocop:
-      run: docker compose run --rm -T api sh -lc "bin/rubocop"
+      run: docker compose run --rm -T api sh -lc "bin/rubocop -A && bin/rubocop"
     app_eslint:
       run: cd app && npm run lint --silent
     app_typecheck:
