@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_09_010500) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_09_020000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -36,6 +36,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_09_010500) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["property_id", "start_on", "end_on"], name: "index_contracts_on_property_id_and_start_on_and_end_on"
+  end
+
+  create_table "dunning_events", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "invoice_id", null: false
+    t.string "stage", null: false
+    t.datetime "sent_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["invoice_id", "stage"], name: "index_dunning_events_on_invoice_id_and_stage", unique: true
   end
 
   create_table "invoices", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -137,6 +146,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_09_010500) do
   add_foreign_key "bank_statements", "users", column: "imported_by_user_id"
   add_foreign_key "contracts", "properties"
   add_foreign_key "contracts", "tenants"
+  add_foreign_key "dunning_events", "invoices"
   add_foreign_key "invoices", "contracts"
   add_foreign_key "invoices", "tenants"
   add_foreign_key "payment_allocations", "invoices"
