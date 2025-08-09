@@ -5,7 +5,31 @@ on:
   push:
     branches: [ main ]
 
+# Grant write permissions for PR comment actions (coverage, Danger)
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
 jobs:
+  meta-lint:
+    name: Repository Meta Lint (MD/YAML/JSON)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Super-Linter
+        uses: github/super-linter/slim@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BRANCH: main
+          VALIDATE_ALL_CODEBASE: false
+          VALIDATE_MARKDOWN: true
+          VALIDATE_YAML: true
+          VALIDATE_JSON: true
+          VALIDATE_DOCKERFILE: true
+
   backend:
     name: Rails API - Lint & Test
     runs-on: ubuntu-latest
@@ -59,7 +83,27 @@ jobs:
           DB_USER: postgres
           DB_PASSWORD: postgres
           RAILS_ENV: test
+          COVERAGE: "true"
         run: bundle exec rspec --format progress
+      - name: Debug Rails coverage dir
+        if: ${{ always() }}
+        run: |
+          ls -la
+          ls -la api || true
+          ls -la api/coverage || true
+      - name: Upload Rails coverage artifact
+        if: ${{ hashFiles('api/coverage/lcov.info') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rails-coverage
+          path: api/coverage/
+          if-no-files-found: warn
+      - name: Post Rails coverage as PR comment
+        if: ${{ github.event_name == 'pull_request' && hashFiles('api/coverage/lcov.info') != '' }}
+        uses: romeovs/lcov-reporter-action@v0.3.1
+        with:
+          lcov-file: api/coverage/lcov.info
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Generate OpenAPI (artifact)
         if: ${{ always() }}
         working-directory: ${{ github.workspace }}/api
@@ -117,4 +161,49 @@ jobs:
         run: npm run typecheck --silent
       - name: Jest
         working-directory: ${{ github.workspace }}/app
-        run: npm run test:ci
+        run: npm run test:ci -- --coverage
+      - name: Debug App coverage dir
+        if: ${{ always() }}
+        run: |
+          ls -la
+          ls -la app || true
+          ls -la app/coverage || true
+      - name: Upload RN coverage artifact
+        if: ${{ hashFiles('app/coverage/lcov.info') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-coverage
+          path: app/coverage/
+          if-no-files-found: warn
+      - name: Post RN coverage as PR comment
+        if: ${{ github.event_name == 'pull_request' && hashFiles('app/coverage/lcov.info') != '' }}
+        uses: romeovs/lcov-reporter-action@v0.3.1
+        with:
+          lcov-file: app/coverage/lcov.info
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  danger:
+    name: Danger (PR review automation)
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3.4'
+          bundler-cache: true
+      - name: Install Danger gem
+        run: |
+          gem install danger -N
+          gem install faraday-retry -N
+      - name: Run Danger
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DANGER_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: ${{ github.workspace }}
+        run: |
+          ls -la
+          test -f Dangerfile || (echo "Dangerfile missing" && exit 1)
+          danger --dangerfile="${{ github.workspace }}/Dangerfile"
