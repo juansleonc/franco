@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, FlatList, TextInput, StyleSheet, Alert } from 'react-native';
 import { Screen, H1, PrimaryButton, Card, Label } from '@/components/ui';
+import { ConfirmDialog, useToast } from '@/components/feedback';
 import { apiRequest } from '@/lib/api';
 import { useMutation } from '@tanstack/react-query';
 
@@ -9,6 +10,8 @@ type Candidate = { invoice_id: string; tenant_id: string; stage: string; email?:
 export default function DunningScreen() {
   const [asOf, setAsOf] = useState<string>('');
   const [data, setData] = useState<Candidate[]>([]);
+  const [confirmVisible, setConfirmVisible] = useState(false);
+  const toast = useToast();
 
   const previewMut = useMutation({
     mutationFn: async () => (await apiRequest<{ data: Candidate[] }>(`/v1/dunning/preview${asOf ? `?as_of=${asOf}` : ''}`)).data,
@@ -24,7 +27,7 @@ export default function DunningScreen() {
         body: { invoice_ids, channels: ['email', 'sms'] },
       });
     },
-    onSuccess: (res) => Alert.alert('Enqueued', `enqueued=${res.data.enqueued}, throttled=${res.data.throttled}`),
+    onSuccess: (res) => { toast.show(`Enqueued ${res.data.enqueued}, throttled ${res.data.throttled}`); setConfirmVisible(false); },
     onError: (e: any) => Alert.alert('Error', e.message),
   });
 
@@ -35,7 +38,7 @@ export default function DunningScreen() {
         <Label>As of (YYYY-MM-DD)</Label>
         <TextInput style={styles.input} placeholder="2025-08-20" value={asOf} onChangeText={setAsOf} />
         <PrimaryButton title={previewMut.isPending ? 'Loading...' : 'Preview'} onPress={() => previewMut.mutate()} />
-        <PrimaryButton title={sendBulkMut.isPending ? 'Sending...' : 'Send Bulk (email+sms)'} onPress={() => sendBulkMut.mutate()} disabled={data.length === 0} />
+        <PrimaryButton title={sendBulkMut.isPending ? 'Sending...' : 'Send Bulk (email+sms)'} onPress={() => setConfirmVisible(true)} disabled={data.length === 0} />
       </Card>
       <FlatList
         data={data}
@@ -46,6 +49,13 @@ export default function DunningScreen() {
             <Label>{item.email || item.phone}</Label>
           </Card>
         )}
+      />
+      <ConfirmDialog
+        visible={confirmVisible}
+        title="Send notifications?"
+        message={`This will send ${data.length} notifications (email+sms) if available.`}
+        onCancel={() => setConfirmVisible(false)}
+        onConfirm={() => sendBulkMut.mutate()}
       />
     </Screen>
   );
