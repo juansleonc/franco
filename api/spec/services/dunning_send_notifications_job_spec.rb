@@ -9,6 +9,6 @@ RSpec.describe Dunning::SendNotificationsJob, type: :job do
 
     expect {
       described_class.perform_now(invoice_id: invoice.id, channels: %w[email sms])
-    }.to change { NotificationLog.count }.by_at_least(1)
+    }.to change(NotificationLog, :count).by_at_least(1)
   end
 end

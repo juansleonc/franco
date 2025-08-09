@@ -6,7 +6,7 @@ RSpec.describe Dedup::PropertyMerger do
     source = create(:property, address: 'B', unit: '2')
     contract = create(:contract, property: source)
 
-    result = described_class.new.call(target_id: target.id, source_ids: [source.id])
+    result = described_class.new.call(target_id: target.id, source_ids: [ source.id ])
 
     expect(result[:ok]).to be true
     expect { source.reload }.to raise_error(ActiveRecord::RecordNotFound)

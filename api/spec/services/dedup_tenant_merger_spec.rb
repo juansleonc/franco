@@ -9,7 +9,7 @@ RSpec.describe Dedup::TenantMerger do
     invoice = create(:invoice, tenant: source, contract: contract)
     payment = create(:payment, tenant: source)
 
-    result = described_class.new.call(target_id: target.id, source_ids: [source.id])
+    result = described_class.new.call(target_id: target.id, source_ids: [ source.id ])
 
     expect(result[:ok]).to be true
     expect { source.reload }.to raise_error(ActiveRecord::RecordNotFound)

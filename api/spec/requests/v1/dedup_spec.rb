@@ -31,7 +31,7 @@ RSpec.describe 'V1::Dedup', type: :request do
   it 'merges tenants' do
     t1 = create(:tenant, email: 'merge1@example.com')
     t2 = create(:tenant, email: 'merge2@example.com')
-    post '/v1/dedup/merge', params: { entity: 'tenants', target_id: t1.id, source_ids: [t2.id] }, headers: auth_headers, as: :json
+    post '/v1/dedup/merge', params: { entity: 'tenants', target_id: t1.id, source_ids: [ t2.id ] }, headers: auth_headers, as: :json
     expect(response).to have_http_status(:ok)
     expect(Tenant.where(id: t2.id)).to be_empty
   end

@@ -1,5 +1,5 @@
 # Ensures top-level Banking module methods are available when autoloading
-require_dependency 'banking/client'
+require_dependency "banking/client"
 
 module Banking
   class << self

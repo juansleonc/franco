@@ -2,7 +2,7 @@ module Banking
   class NullClient
     def list_accounts
       [
-        { id: 'acc_001', name: 'Default Operating', currency: 'USD' }
+        { id: "acc_001", name: "Default Operating", currency: "USD" }
       ]
     end
 

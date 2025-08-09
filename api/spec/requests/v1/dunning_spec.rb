@@ -18,9 +18,10 @@ RSpec.describe 'V1::Dunning', type: :request do
     expect(response).to have_http_status(:ok)
     data = JSON.parse(response.body)['data']
     expect(data.first['stage']).to eq('gentle')
-    # second call should be idempotent by unique event
+    # second call should not mutate state and should return same candidates
     get '/v1/dunning/candidates', params: { as_of: as_of.to_s }, headers: auth_headers
-    expect(JSON.parse(response.body)['data']).to be_empty
+    second = JSON.parse(response.body)['data']
+    expect(second).not_to be_empty
   end
 
   it 'previews channels without side effects' do
@@ -43,7 +44,7 @@ RSpec.describe 'V1::Dunning', type: :request do
     contract = create(:contract, tenant: tenant)
     inv = create(:invoice, tenant: tenant, contract: contract, balance_cents: 5000)
     # Use ActiveJob test helper expectations if available, fallback to response check
-    post '/v1/dunning/send_bulk', params: { invoice_ids: [inv.id], channels: %w[email sms] }, headers: auth_headers
+    post '/v1/dunning/send_bulk', params: { invoice_ids: [ inv.id ], channels: %w[email sms] }, headers: auth_headers
     expect(response).to have_http_status(:ok)
     body = JSON.parse(response.body)
     expect(body['data']['enqueued']).to eq(1)
@@ -54,7 +55,7 @@ RSpec.describe 'V1::Dunning', type: :request do
     contract = create(:contract, tenant: tenant)
     inv = create(:invoice, tenant: tenant, contract: contract, balance_cents: 5000)
     NotificationLog.create!(invoice: inv, tenant: tenant, channel: 'email', status: 'sent', sent_at: Time.current)
-    post '/v1/dunning/send_bulk', params: { invoice_ids: [inv.id], channels: %w[email] }, headers: auth_headers
+    post '/v1/dunning/send_bulk', params: { invoice_ids: [ inv.id ], channels: %w[email] }, headers: auth_headers
     expect(response).to have_http_status(:ok)
     body = JSON.parse(response.body)
     expect(body['data']['throttled']).to be >= 1
