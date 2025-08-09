@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Button, FlatList, TextInput, StyleSheet, Alert } from 'react-native';
-import { Text } from '@/components/Themed';
+import { View, FlatList, TextInput, StyleSheet, Alert } from 'react-native';
+import { Screen, H1, PrimaryButton, Card, Label } from '@/components/ui';
 import { apiRequest } from '@/lib/api';
 import { useMutation } from '@tanstack/react-query';
 
@@ -9,7 +9,6 @@ type Candidate = { invoice_id: string; tenant_id: string; stage: string; email?:
 export default function DunningScreen() {
   const [asOf, setAsOf] = useState<string>('');
   const [data, setData] = useState<Candidate[]>([]);
-  const [loading, setLoading] = useState(false);
 
   const previewMut = useMutation({
     mutationFn: async () => (await apiRequest<{ data: Candidate[] }>(`/v1/dunning/preview${asOf ? `?as_of=${asOf}` : ''}`)).data,
@@ -30,27 +29,28 @@ export default function DunningScreen() {
   });
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Dunning</Text>
-      <TextInput style={styles.input} placeholder="As of (YYYY-MM-DD)" value={asOf} onChangeText={setAsOf} />
-      <Button title={previewMut.isPending ? 'Loading...' : 'Preview'} onPress={() => previewMut.mutate()} />
-      <Button title={sendBulkMut.isPending ? 'Sending...' : 'Send Bulk (email+sms)'} onPress={() => sendBulkMut.mutate()} disabled={data.length === 0} />
+    <Screen>
+      <H1>Dunning</H1>
+      <Card>
+        <Label>As of (YYYY-MM-DD)</Label>
+        <TextInput style={styles.input} placeholder="2025-08-20" value={asOf} onChangeText={setAsOf} />
+        <PrimaryButton title={previewMut.isPending ? 'Loading...' : 'Preview'} onPress={() => previewMut.mutate()} />
+        <PrimaryButton title={sendBulkMut.isPending ? 'Sending...' : 'Send Bulk (email+sms)'} onPress={() => sendBulkMut.mutate()} disabled={data.length === 0} />
+      </Card>
       <FlatList
         data={data}
         keyExtractor={(item) => item.invoice_id}
         renderItem={({ item }) => (
-          <View style={styles.row}>
-            <Text>{item.invoice_id.slice(0, 6)} • {item.stage} • {item.email || item.phone}</Text>
-          </View>
+          <Card>
+            <Label>{item.stage}</Label>
+            <Label>{item.email || item.phone}</Label>
+          </Card>
         )}
       />
-    </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
-  title: { fontSize: 20, fontWeight: '600', marginBottom: 12 },
-  input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 8, padding: 8, marginBottom: 8 },
-  row: { paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#eee' },
+  input: { borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 10, padding: 10, marginBottom: 8, backgroundColor: '#fff' },
 });

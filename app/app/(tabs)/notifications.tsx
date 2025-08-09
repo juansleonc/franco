@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Button, TextInput, FlatList, StyleSheet, Alert } from 'react-native';
-import { Text } from '@/components/Themed';
+import { View, TextInput, FlatList, StyleSheet, Alert } from 'react-native';
+import { Screen, H1, PrimaryButton, Card, Label } from '@/components/ui';
 import { apiRequest } from '@/lib/api';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
@@ -25,29 +25,30 @@ export default function NotificationsScreen() {
   });
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Notifications</Text>
-      <TextInput style={styles.input} value={to} onChangeText={setTo} placeholder="Email" />
-      <Button title={sendEmail.isPending ? 'Sending...' : 'Send test email'} onPress={() => sendEmail.mutate()} />
-      <TextInput style={styles.input} value={phone} onChangeText={setPhone} placeholder="Phone" />
-      <Button title={sendSms.isPending ? 'Sending...' : 'Send test SMS'} onPress={() => sendSms.mutate()} />
-      <Button title={logsQuery.isPending ? 'Loading logs...' : 'Refresh logs'} onPress={() => logsQuery.refetch()} />
+    <Screen>
+      <H1>Notifications</H1>
+      <Card>
+        <Label>Test Email</Label>
+        <TextInput style={styles.input} value={to} onChangeText={setTo} placeholder="Email" />
+        <PrimaryButton title={sendEmail.isPending ? 'Sending...' : 'Send test email'} onPress={() => sendEmail.mutate()} />
+      </Card>
+      <Card>
+        <Label>Test SMS</Label>
+        <TextInput style={styles.input} value={phone} onChangeText={setPhone} placeholder="Phone" />
+        <PrimaryButton title={sendSms.isPending ? 'Sending...' : 'Send test SMS'} onPress={() => sendSms.mutate()} />
+      </Card>
+      <PrimaryButton title={logsQuery.isPending ? 'Loading logs...' : 'Refresh logs'} onPress={() => logsQuery.refetch()} />
       <FlatList
         data={logsQuery.data || []}
         keyExtractor={(i) => i.id}
         renderItem={({ item }) => (
-          <View style={styles.row}>
-            <Text>{item.channel} • {item.status} • {new Date(item.sent_at).toLocaleString()}</Text>
-          </View>
+          <Card><Label>{new Date(item.sent_at).toLocaleString()}</Label><Label>{item.channel} • {item.status}</Label></Card>
         )}
       />
-    </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
-  title: { fontSize: 20, fontWeight: '600', marginBottom: 12 },
-  input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 8, padding: 8, marginVertical: 8 },
-  row: { paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#eee' },
+  input: { borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 10, padding: 10, marginVertical: 8, backgroundColor: '#fff' },
 });

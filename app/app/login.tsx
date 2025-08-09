@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, StyleSheet, Alert } from 'react-native';
-import { Text } from '@/components/Themed';
+import { View, TextInput, StyleSheet, Alert, Image } from 'react-native';
+import { Screen, H1, PrimaryButton, Label } from '@/components/ui';
 import { login, logout } from '@/lib/api';
 import { useRouter } from 'expo-router';
 
@@ -23,30 +23,23 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
-      <TextInput
-        style={styles.input}
-        autoCapitalize="none"
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
-      <Button title={loading ? 'Logging in...' : 'Login'} onPress={onLogin} disabled={loading} />
-      <Button title="Logout (clear token)" onPress={async () => { await logout(); }} />
-    </View>
+    <Screen>
+      <View style={styles.header}>
+        <Image source={require('../assets/images/icon.png')} style={styles.logo} />
+        <H1>Welcome to Franco</H1>
+      </View>
+      <Label>Email</Label>
+      <TextInput style={styles.input} autoCapitalize="none" placeholder="Email" value={email} onChangeText={setEmail} />
+      <Label>Password</Label>
+      <TextInput style={styles.input} placeholder="Password" secureTextEntry value={password} onChangeText={setPassword} />
+      <PrimaryButton title={loading ? 'Logging in...' : 'Login'} onPress={onLogin} disabled={loading} />
+      <PrimaryButton title="Logout (clear token)" onPress={async () => { await logout(); }} />
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 16 },
-  title: { fontSize: 22, fontWeight: '600', marginBottom: 16 },
-  input: { width: '90%', borderWidth: 1, borderColor: '#ccc', borderRadius: 8, padding: 12, marginBottom: 12 },
+  header: { alignItems: 'center', marginBottom: 16 },
+  logo: { width: 64, height: 64, marginBottom: 8 },
+  input: { width: '100%', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 10, padding: 12, marginBottom: 12, backgroundColor: '#fff' },
 });

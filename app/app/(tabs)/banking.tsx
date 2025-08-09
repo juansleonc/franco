@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Button, FlatList, StyleSheet, Alert } from 'react-native';
-import { Text } from '@/components/Themed';
+import { View, FlatList, StyleSheet, Alert } from 'react-native';
+import { Screen, H1, PrimaryButton, Card, Label } from '@/components/ui';
 import { apiRequest } from '@/lib/api';
 
 type Account = { id: string; name: string; currency: string };
@@ -27,23 +27,21 @@ export default function BankingScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Banking</Text>
-      <Button title="List accounts" onPress={fetchAccounts} />
-      <Button title="Sync" onPress={sync} />
+    <Screen>
+      <H1>Banking</H1>
+      <PrimaryButton title="List accounts" onPress={fetchAccounts} />
+      <PrimaryButton title="Sync" onPress={sync} />
       <FlatList
         data={accounts}
         keyExtractor={(a) => a.id}
         renderItem={({ item }) => (
-          <View style={styles.row}><Text>{item.name} • {item.currency}</Text></View>
+          <Card><Label>{item.name} • {item.currency}</Label></Card>
         )}
       />
-    </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
-  title: { fontSize: 20, fontWeight: '600', marginBottom: 12 },
-  row: { paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#eee' },
+  
 });
