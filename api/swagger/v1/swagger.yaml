@@ -4,6 +4,93 @@ info:
   title: API V1
   version: v1
 paths:
+  "/v1/contracts":
+    get:
+      summary: List contracts
+      tags:
+      - Contracts
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: Authorization
+        in: header
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ok
+    post:
+      summary: Create contract
+      tags:
+      - Contracts
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: Authorization
+        in: header
+        schema:
+          type: string
+      responses:
+        '201':
+          description: created
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                property_id:
+                  type: string
+                tenant_id:
+                  type: string
+                start_on:
+                  type: string
+                  format: date
+                end_on:
+                  type: string
+                  format: date
+                due_day:
+                  type: integer
+                monthly_rent:
+                  type: number
+              required:
+              - property_id
+              - tenant_id
+              - start_on
+              - end_on
+              - due_day
+              - monthly_rent
+  "/v1/contracts/schedule_preview":
+    post:
+      summary: Preview rent schedule
+      tags:
+      - Contracts
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: Authorization
+        in: header
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ok
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                start_on:
+                  type: string
+                  format: date
+                due_day:
+                  type: integer
+                months:
+                  type: integer
+              required:
+              - start_on
+              - due_day
   "/v1/health":
     get:
       summary: Health check
@@ -12,6 +99,207 @@ paths:
       responses:
         '200':
           description: ok
+  "/v1/properties":
+    get:
+      summary: List properties
+      tags:
+      - Properties
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: Authorization
+        in: header
+        schema:
+          type: string
+        description: Bearer token
+      responses:
+        '200':
+          description: ok
+    post:
+      summary: Create property
+      tags:
+      - Properties
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: Authorization
+        in: header
+        schema:
+          type: string
+      responses:
+        '201':
+          description: created
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                address:
+                  type: string
+                unit:
+                  type: string
+              required:
+              - name
+              - address
+  "/v1/properties/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    get:
+      summary: Show property
+      tags:
+      - Properties
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: Authorization
+        in: header
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ok
+    patch:
+      summary: Update property
+      tags:
+      - Properties
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: Authorization
+        in: header
+        schema:
+          type: string
+      responses:
+        '200':
+          description: updated
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+    delete:
+      summary: Delete property
+      tags:
+      - Properties
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: Authorization
+        in: header
+        schema:
+          type: string
+      responses:
+        '204':
+          description: deleted
+  "/v1/tenants":
+    get:
+      summary: List tenants
+      tags:
+      - Tenants
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: Authorization
+        in: header
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ok
+    post:
+      summary: Create tenant
+      tags:
+      - Tenants
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: Authorization
+        in: header
+        schema:
+          type: string
+      responses:
+        '201':
+          description: created
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                full_name:
+                  type: string
+                email:
+                  type: string
+              required:
+              - full_name
+              - email
+  "/v1/tenants/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    get:
+      summary: Show tenant
+      tags:
+      - Tenants
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: Authorization
+        in: header
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ok
+    patch:
+      summary: Update tenant
+      tags:
+      - Tenants
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: Authorization
+        in: header
+        schema:
+          type: string
+      responses:
+        '200':
+          description: updated
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone:
+                  type: string
+    delete:
+      summary: Delete tenant
+      tags:
+      - Tenants
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: Authorization
+        in: header
+        schema:
+          type: string
+      responses:
+        '204':
+          description: deleted
 servers:
 - url: http://{defaultHost}
   variables:
