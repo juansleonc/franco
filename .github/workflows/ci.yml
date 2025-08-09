@@ -6,6 +6,27 @@ on:
     branches: [ main ]
 
 jobs:
+  meta-lint:
+    name: Repository Meta Lint (MD/YAML/JSON)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Super-Linter
+        uses: github/super-linter/slim@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BRANCH: main
+          VALIDATE_ALL_CODEBASE: false
+          VALIDATE_MARKDOWN: true
+          VALIDATE_YAML: true
+          VALIDATE_JSON: true
+          VALIDATE_DOCKERFILE: true
+          VALIDATE_JAVASCRIPT_ES: false
+          VALIDATE_TYPESCRIPT_ES: false
+          VALIDATE_RUBY: false
+
   backend:
     name: Rails API - Lint & Test
     runs-on: ubuntu-latest
@@ -60,6 +81,19 @@ jobs:
           DB_PASSWORD: postgres
           RAILS_ENV: test
         run: bundle exec rspec --format progress
+      - name: Upload Rails coverage artifact
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rails-coverage
+          path: api/coverage/
+          if-no-files-found: error
+      - name: Post Rails coverage as PR comment
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: romeovs/lcov-reporter-action@v0.3.1
+        with:
+          lcov-file: api/coverage/lcov.info
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Generate OpenAPI (artifact)
         if: ${{ always() }}
         working-directory: ${{ github.workspace }}/api
@@ -117,4 +151,38 @@ jobs:
         run: npm run typecheck --silent
       - name: Jest
         working-directory: ${{ github.workspace }}/app
-        run: npm run test:ci
+        run: npm run test:ci -- --coverage
+      - name: Upload RN coverage artifact
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-coverage
+          path: app/coverage/
+          if-no-files-found: error
+      - name: Post RN coverage as PR comment
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: romeovs/lcov-reporter-action@v0.3.1
+        with:
+          lcov-file: app/coverage/lcov.info
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  danger:
+    name: Danger (PR review automation)
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3.4'
+          bundler-cache: true
+      - name: Install gems (API bundle)
+        working-directory: ${{ github.workspace }}/api
+        run: bundle install --jobs 4 --retry 3
+      - name: Run Danger
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BUNDLE_GEMFILE: ${{ github.workspace }}/api/Gemfile
+        run: bundle exec danger --dangerfile=Dangerfile
