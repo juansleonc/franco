@@ -20,6 +20,20 @@ Rails.application.routes.draw do
         post :schedule_preview
       end
     end
+
+    resources :invoices, only: %i[index show]
+    resources :payments, only: %i[index create show update]
+    resources :bank_statements, only: %i[show] do
+      collection do
+        post :import
+      end
+    end
+    resources :statement_lines, only: [] do
+      member do
+        post :match
+        post :ignore
+      end
+    end
   end
 
   # rails health
