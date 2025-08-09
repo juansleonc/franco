@@ -69,10 +69,10 @@ jobs:
           if-no-files-found: error
       - name: Post Rails coverage as PR comment
         if: ${{ github.event_name == 'pull_request' }}
-        uses: MishaKav/jest-coverage-comment@v1
+        uses: romeovs/lcov-reporter-action@v0.3.1
         with:
-          coverage-summary-path: api/coverage/coverage-summary.json
-          title: Rails API Coverage
+          lcov-file: api/coverage/lcov.info
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Generate OpenAPI (artifact)
         if: ${{ always() }}
         working-directory: ${{ github.workspace }}/api
@@ -140,7 +140,7 @@ jobs:
           if-no-files-found: error
       - name: Post RN coverage as PR comment
         if: ${{ github.event_name == 'pull_request' }}
-        uses: MishaKav/jest-coverage-comment@v1
+        uses: romeovs/lcov-reporter-action@v0.3.1
         with:
-          coverage-summary-path: app/coverage/coverage-summary.json
-          title: RN App Coverage
+          lcov-file: app/coverage/lcov.info
+          github-token: ${{ secrets.GITHUB_TOKEN }}
