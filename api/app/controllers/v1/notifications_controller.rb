@@ -82,9 +82,9 @@ module V1
       scope = scope.where(channel: params[:channel]) if params[:channel].present?
       count = 0
       scope.find_each do |log|
-        # Avoid enqueuing duplicate jobs for the same invoice/channel too frequently
-        recent = NotificationLog.where(tenant_id: log.tenant_id, channel: log.channel).where("sent_at > ?", 5.minutes.ago)
-        next if recent.exists?
+        # Avoid duplicate retries if there was a successful send very recently for same tenant/channel
+        recent_success = NotificationLog.where(tenant_id: log.tenant_id, channel: log.channel, status: "sent").where("sent_at > ?", 5.minutes.ago)
+        next if recent_success.exists?
         channels = [ log.channel ]
         Dunning::SendNotificationsJob.perform_later(invoice_id: log.invoice_id, channels: channels)
         count += 1
