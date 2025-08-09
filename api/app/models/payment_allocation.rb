@@ -5,13 +5,15 @@ class PaymentAllocation < ApplicationRecord
   validates :amount_cents, numericality: { greater_than: 0 }
   validate :not_exceed_payment
 
-  after_commit :update_invoice_balance_and_status
+  after_commit :update_invoice_balance_and_status, on: :create
 
   private
 
   def not_exceed_payment
     return if payment.blank?
-    if amount_cents.to_i + payment.allocated_cents - (persisted? ? self.class.find(id).amount_cents : 0) > payment.amount_cents
+    previous = persisted? ? self.class.find(id).amount_cents : 0
+    new_total = payment.allocated_cents - previous + amount_cents.to_i
+    if new_total > payment.amount_cents
       errors.add(:amount_cents, "exceeds payment amount")
     end
   end
