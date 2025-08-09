@@ -6,6 +6,28 @@ on:
     branches: [ main ]
 
 jobs:
+  meta-lint:
+    name: Repository Meta Lint (MD/YAML/JSON)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Super-Linter
+        uses: github/super-linter/slim@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BRANCH: main
+          VALIDATE_ALL_CODEBASE: false
+          VALIDATE_MARKDOWN: true
+          VALIDATE_YAML: true
+          VALIDATE_JSON: true
+          VALIDATE_DOCKERFILE: true
+          # Disable linters already covered elsewhere
+          VALIDATE_JAVASCRIPT_ES: false
+          VALIDATE_TYPESCRIPT_ES: false
+          VALIDATE_RUBY: false
+
   backend:
     name: Rails API - Lint & Test
     runs-on: ubuntu-latest
