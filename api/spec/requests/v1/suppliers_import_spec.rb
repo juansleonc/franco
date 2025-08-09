@@ -4,7 +4,7 @@ RSpec.describe "V1::Suppliers import", type: :request do
   let!(:user) { create(:user, email: "admin@example.com", password: "Password123!", password_confirmation: "Password123!") }
 
   def auth_headers
-    post "/v1/auth/login", params: { email: user.email, password: "Password123!" }
+    post "/v1/auth/login", params: { email: user.email, password: "Password123!" }, as: :json
     token = JSON.parse(response.body)["token"]
     { "Authorization" => "Bearer #{token}" }
   end

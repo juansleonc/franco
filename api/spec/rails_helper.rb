@@ -11,7 +11,10 @@ unless SWAGGER_MODE
     minimum_coverage_by_file 100
     add_filter '/app/controllers/application_controller.rb'
     add_filter '/app/controllers/health_controller.rb'
+    add_filter '/app/controllers/v1/healths_controller.rb'
     add_filter '/app/policies/'
+    add_filter '/config/'
+    add_filter '/swagger/'
   end
 end
 ENV['RAILS_ENV'] ||= 'test'

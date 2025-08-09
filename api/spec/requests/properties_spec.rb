@@ -4,7 +4,7 @@ RSpec.describe 'V1::Properties', type: :request do
   let!(:user) { create(:user, password: 'secret123') }
 
   def auth_headers
-    post '/v1/auth/login', params: { email: user.email, password: 'secret123' }
+    post '/v1/auth/login', params: { email: user.email, password: 'secret123' }, as: :json
     token = JSON.parse(response.body)['token']
     { 'Authorization' => "Bearer #{token}" }
   end
@@ -20,12 +20,12 @@ RSpec.describe 'V1::Properties', type: :request do
 
   it 'creates, updates and deletes a property' do
     # create
-    post '/v1/properties', params: { property: { name: 'Depto', address: 'Av Siempre Viva', unit: 'B' } }, headers: auth_headers
+    post '/v1/properties', params: { property: { name: 'Depto', address: 'Av Siempre Viva', unit: 'B' } }, headers: auth_headers, as: :json
     expect(response).to have_http_status(:created)
     prop = JSON.parse(response.body)['data']
 
     # update
-    patch "/v1/properties/#{prop['id']}", params: { property: { name: 'Depto Editado' } }, headers: auth_headers
+    patch "/v1/properties/#{prop['id']}", params: { property: { name: 'Depto Editado' } }, headers: auth_headers, as: :json
     expect(response).to have_http_status(:ok)
     expect(JSON.parse(response.body)['data']['name']).to eq('Depto Editado')
 
@@ -35,7 +35,7 @@ RSpec.describe 'V1::Properties', type: :request do
   end
 
   it 'returns 422 on invalid create' do
-    post '/v1/properties', params: { property: { address: 'Sin nombre' } }, headers: auth_headers
+    post '/v1/properties', params: { property: { address: 'Sin nombre' } }, headers: auth_headers, as: :json
     expect(response).to have_http_status(:unprocessable_content)
   end
 

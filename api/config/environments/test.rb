@@ -31,6 +31,11 @@ Rails.application.configure do
   # Disable request forgery protection in test environment.
   config.action_controller.allow_forgery_protection = false
 
+  # Provide minimal Active Record encryption keys for tests
+  config.active_record.encryption.primary_key = ENV.fetch('AR_ENC_PRIMARY_KEY', 'x' * 32)
+  config.active_record.encryption.deterministic_key = ENV.fetch('AR_ENC_DETERMINISTIC_KEY', 'y' * 32)
+  config.active_record.encryption.key_derivation_salt = ENV.fetch('AR_ENC_SALT', 'z' * 32)
+
   # Store uploaded files on the local file system in a temporary directory.
   config.active_storage.service = :test
 
