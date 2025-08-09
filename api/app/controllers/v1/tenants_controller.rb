@@ -4,30 +4,30 @@ module V1
     def index
       authorize Tenant
       pagy, records = pagy(Tenant.order(created_at: :desc))
-      render json: { data: ActiveModelSerializers::SerializableResource.new(records, each_serializer: TenantSerializer), meta: { page: pagy.page, pages: pagy.pages, count: pagy.count } }
+      render_collection(records, serializer: TenantSerializer, pagy: pagy)
     end
 
     def show
       authorize tenant
-      render json: { data: TenantSerializer.new(tenant) }
+      render_resource(tenant, serializer: TenantSerializer)
     end
 
     def create
       authorize Tenant
       record = Tenant.new(tenant_params)
       if record.save
-        render json: { data: TenantSerializer.new(record) }, status: :created
+        render_resource(record, serializer: TenantSerializer, status: :created)
       else
-        render json: { errors: record.errors.full_messages }, status: :unprocessable_entity
+        render_errors(record.errors.full_messages)
       end
     end
 
     def update
       authorize tenant
       if tenant.update(tenant_params)
-        render json: { data: TenantSerializer.new(tenant) }
+        render_resource(tenant, serializer: TenantSerializer)
       else
-        render json: { errors: tenant.errors.full_messages }, status: :unprocessable_entity
+        render_errors(tenant.errors.full_messages)
       end
     end
 

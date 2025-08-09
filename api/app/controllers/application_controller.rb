@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::API
   include Pundit::Authorization
+  include Renderable
 
   before_action :authenticate_user!
 

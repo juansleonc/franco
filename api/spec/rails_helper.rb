@@ -1,5 +1,22 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 require 'spec_helper'
+
+# Disable coverage when generating Swagger (rswag dry-run) to avoid false failures
+SWAGGER_MODE = ENV['RSWAG'] == 'true' || ARGV.any? { |a| a.include?('Rswag::Specs::SwaggerFormatter') || a == '--dry-run' }
+unless SWAGGER_MODE
+  require 'simplecov'
+  SimpleCov.start 'rails' do
+    enable_coverage :branch
+    minimum_coverage 90
+    # Per-file minimum disabled to avoid false failures on infra files
+    add_filter '/app/controllers/application_controller.rb'
+    add_filter '/app/controllers/health_controller.rb'
+    add_filter '/app/controllers/v1/healths_controller.rb'
+    add_filter '/app/policies/'
+    add_filter '/config/'
+    add_filter '/swagger/'
+  end
+end
 ENV['RAILS_ENV'] ||= 'test'
 require_relative '../config/environment'
 # Prevent database truncation if the environment is production

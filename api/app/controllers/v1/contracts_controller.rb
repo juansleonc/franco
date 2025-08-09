@@ -1,32 +1,33 @@
 module V1
   class ContractsController < ApplicationController
+    include Pagy::Backend
     def index
       authorize Contract
-      records = Contract.order(created_at: :desc)
-      render json: { data: ActiveModelSerializers::SerializableResource.new(records, each_serializer: ContractSerializer) }
+      pagy, records = pagy(Contract.order(created_at: :desc))
+      render_collection(records, serializer: ContractSerializer, pagy: pagy)
     end
 
     def show
       authorize contract
-      render json: { data: ContractSerializer.new(contract) }
+      render_resource(contract, serializer: ContractSerializer)
     end
 
     def create
       authorize Contract
       record = Contract.new(contract_params)
       if record.save
-        render json: { data: ContractSerializer.new(record) }, status: :created
+        render_resource(record, serializer: ContractSerializer, status: :created)
       else
-        render json: { errors: record.errors.full_messages }, status: :unprocessable_entity
+        render_errors(record.errors.full_messages)
       end
     end
 
     def update
       authorize contract
       if contract.update(contract_params)
-        render json: { data: ContractSerializer.new(contract) }
+        render_resource(contract, serializer: ContractSerializer)
       else
-        render json: { errors: contract.errors.full_messages }, status: :unprocessable_entity
+        render_errors(contract.errors.full_messages)
       end
     end
 

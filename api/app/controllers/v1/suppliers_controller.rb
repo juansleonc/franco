@@ -5,16 +5,16 @@ module V1
     def index
       authorize Supplier
       pagy, records = pagy(Supplier.order(created_at: :desc))
-      render json: { data: records.as_json(only: %i[id name tax_id email phone]), meta: { page: pagy.page, pages: pagy.pages, count: pagy.count } }
+      render_collection(records, serializer: SupplierSerializer, pagy: pagy)
     end
 
     def create
       authorize Supplier
       supplier = Supplier.new(supplier_params.merge(created_by_user: current_user))
       if supplier.save
-        render json: { data: supplier.as_json(only: %i[id name tax_id email phone]) }, status: :created
+        render_resource(supplier, serializer: SupplierSerializer, status: :created)
       else
-        render json: { errors: supplier.errors.full_messages }, status: :unprocessable_entity
+        render_errors(supplier.errors.full_messages)
       end
     end
 

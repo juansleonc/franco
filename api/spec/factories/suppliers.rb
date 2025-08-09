@@ -1,10 +1,9 @@
 FactoryBot.define do
   factory :supplier do
-    name { "MyString" }
-    tax_id { "MyString" }
-    email { "MyString" }
-    phone { "MyString" }
-    bank_account_ciphertext { "MyText" }
-    created_by_user { nil }
+    name { "Supplier" }
+    sequence(:tax_id) { |n| "TAX#{n}" }
+    email { "supplier@example.com" }
+    phone { "123" }
+    created_by_user { association :user }
   end
 end
