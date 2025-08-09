@@ -59,7 +59,13 @@ jobs:
           DB_USER: postgres
           DB_PASSWORD: postgres
           RAILS_ENV: test
-        run: bundle exec rspec --format progress
+        run: bundle exec rspec --format progress --profile
+      - name: Upload Rails coverage artifact
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rails-coverage
+          path: api/coverage/
       - name: Generate OpenAPI (artifact)
         if: ${{ always() }}
         working-directory: ${{ github.workspace }}/api
@@ -117,4 +123,10 @@ jobs:
         run: npm run typecheck --silent
       - name: Jest
         working-directory: ${{ github.workspace }}/app
-        run: npm run test:ci
+        run: npm run test:ci -- --coverage
+      - name: Upload RN coverage artifact
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-coverage
+          path: app/coverage/

@@ -1,3 +1,12 @@
+if ENV['CI'] || ENV['COVERAGE']
+  require 'simplecov'
+  SimpleCov.start 'rails' do
+    enable_coverage :branch
+    add_filter '/spec/'
+  end
+  SimpleCov.coverage_dir 'coverage'
+end
+
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|
     expectations.include_chain_clauses_in_custom_matcher_descriptions = true
