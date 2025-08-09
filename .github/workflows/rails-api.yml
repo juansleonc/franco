@@ -67,3 +67,29 @@ jobs:
       - name: Run RSpec
         working-directory: api
         run: bundle exec rspec --format progress --color
+
+  security:
+    runs-on: ubuntu-latest
+
+    env:
+      RAILS_ENV: test
+      BUNDLE_GEMFILE: ${{ github.workspace }}/api/Gemfile
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3.4'
+          bundler-cache: true
+
+      - name: Show Ruby and Bundler versions
+        run: |
+          ruby -v
+          bundle -v
+
+      - name: Run Brakeman
+        working-directory: api
+        run: bundle exec brakeman --no-pager
