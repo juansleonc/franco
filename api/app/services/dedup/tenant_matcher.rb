@@ -15,7 +15,7 @@ module Dedup
         arr.combination(2).each do |a, b|
           next if a.email == b.email
           name_score = similarity(a.full_name.to_s.downcase, b.full_name.to_s.downcase)
-          if name_score >= 0.8
+          if name_score >= 0.7
             candidates << { entity: 'tenants', criterion: 'name_fuzzy', value: { a: a.full_name, b: b.full_name }, ids: [a.id, b.id], count: 2, score: name_score }
           end
         end

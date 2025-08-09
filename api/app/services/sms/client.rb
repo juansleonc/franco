@@ -1,4 +1,6 @@
 module Sms
+  # Define constant to satisfy Zeitwerk
+  class Client; end
   class << self
     def client
       @client ||= build_client
