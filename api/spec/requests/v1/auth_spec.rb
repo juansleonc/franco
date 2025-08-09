@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe "V1::Auth", type: :request do
   before do
-    User.create!(email: "admin@example.com", password: "Password123!", password_confirmation: "Password123!")
+    create(:user, email: "admin@example.com", password: "Password123!", password_confirmation: "Password123!")
   end
 
   it "logs in and receives JWT" do

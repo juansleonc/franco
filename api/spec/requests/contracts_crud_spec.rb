@@ -1,9 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe 'V1::Contracts CRUD', type: :request do
-  let!(:user) { User.create!(email: 'user@example.com', password: 'secret123') }
-  let!(:property) { Property.create!(name: 'Depto 1', address: 'Calle 123', unit: 'A') }
-  let!(:tenant) { Tenant.create!(full_name: 'Juan Perez', email: 'juan@example.com') }
+  let!(:user) { create(:user, password: 'secret123') }
+  let!(:property) { create(:property, name: 'Depto 1', address: 'Calle 123', unit: 'A') }
+  let!(:tenant) { create(:tenant, full_name: 'Juan Perez', email: 'juan@example.com') }
 
   def auth_headers
     post '/v1/auth/login', params: { email: user.email, password: 'secret123' }

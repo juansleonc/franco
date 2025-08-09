@@ -1,7 +1,7 @@
 require 'swagger_helper'
 
 RSpec.describe 'v1/properties', type: :request do
-  let!(:user) { User.create!(email: 'admin@example.com', password: 'Password123!', password_confirmation: 'Password123!') }
+  let!(:user) { create(:user, email: 'admin@example.com', password: 'Password123!', password_confirmation: 'Password123!') }
   let!(:auth) do
     post "/v1/auth/login", params: { email: user.email, password: 'Password123!' }
     token = JSON.parse(response.body)['token']
@@ -47,7 +47,7 @@ RSpec.describe 'v1/properties', type: :request do
       parameter name: :Authorization, in: :header, schema: { type: :string }
       response '200', 'ok' do
         let(:'Authorization') { auth['Authorization'] }
-        let(:id) { Property.create!(name: 'Casa', address: 'Calle 1').id }
+        let(:id) { create(:property, name: 'Casa', address: 'Calle 1').id }
         run_test!
       end
     end
@@ -63,7 +63,7 @@ RSpec.describe 'v1/properties', type: :request do
       }
       response '200', 'updated' do
         let(:'Authorization') { auth['Authorization'] }
-        let(:id) { Property.create!(name: 'Casa', address: 'Calle 1').id }
+        let(:id) { create(:property, name: 'Casa', address: 'Calle 1').id }
         let(:property) { { name: 'New' } }
         run_test!
       end
@@ -75,7 +75,7 @@ RSpec.describe 'v1/properties', type: :request do
       parameter name: :Authorization, in: :header, schema: { type: :string }
       response '204', 'deleted' do
         let(:'Authorization') { auth['Authorization'] }
-        let(:id) { Property.create!(name: 'Casa', address: 'Calle 1').id }
+        let(:id) { create(:property, name: 'Casa', address: 'Calle 1').id }
         run_test!
       end
     end

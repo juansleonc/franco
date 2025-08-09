@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe 'V1::Properties', type: :request do
-  let!(:user) { User.create!(email: 'user@example.com', password: 'secret123') }
+  let!(:user) { create(:user, password: 'secret123') }
 
   def auth_headers
     post '/v1/auth/login', params: { email: user.email, password: 'secret123' }
@@ -10,7 +10,7 @@ RSpec.describe 'V1::Properties', type: :request do
   end
 
   it 'lists properties' do
-    Property.create!(name: 'Casa', address: 'Calle 1')
+    create(:property, name: 'Casa', address: 'Calle 1')
     get '/v1/properties', headers: auth_headers
     expect(response).to have_http_status(:ok)
     body = JSON.parse(response.body)

@@ -1,7 +1,7 @@
 require 'swagger_helper'
 
 RSpec.describe 'v1/tenants', type: :request do
-  let!(:user) { User.create!(full_name: 'Admin', email: 'admin@example.com', password: 'Password123!', password_confirmation: 'Password123!') rescue User.create!(email: 'admin@example.com', password: 'Password123!', password_confirmation: 'Password123!') }
+  let!(:user) { create(:user, email: 'admin@example.com', password: 'Password123!', password_confirmation: 'Password123!') }
   let!(:auth) do
     post "/v1/auth/login", params: { email: 'admin@example.com', password: 'Password123!' }
     token = JSON.parse(response.body)['token']
@@ -47,7 +47,7 @@ RSpec.describe 'v1/tenants', type: :request do
       parameter name: :Authorization, in: :header, schema: { type: :string }
       response '200', 'ok' do
         let(:'Authorization') { auth['Authorization'] }
-        let(:id) { Tenant.create!(full_name: 'Ana', email: 'ana@example.com').id }
+        let(:id) { create(:tenant, full_name: 'Ana', email: 'ana@example.com').id }
         run_test!
       end
     end
@@ -63,7 +63,7 @@ RSpec.describe 'v1/tenants', type: :request do
       }
       response '200', 'updated' do
         let(:'Authorization') { auth['Authorization'] }
-        let(:id) { Tenant.create!(full_name: 'Ana', email: 'ana@example.com').id }
+        let(:id) { create(:tenant, full_name: 'Ana', email: 'ana@example.com').id }
         let(:tenant) { { phone: '123' } }
         run_test!
       end
@@ -75,7 +75,7 @@ RSpec.describe 'v1/tenants', type: :request do
       parameter name: :Authorization, in: :header, schema: { type: :string }
       response '204', 'deleted' do
         let(:'Authorization') { auth['Authorization'] }
-        let(:id) { Tenant.create!(full_name: 'Ana', email: 'ana@example.com').id }
+        let(:id) { create(:tenant, full_name: 'Ana', email: 'ana@example.com').id }
         run_test!
       end
     end

@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe "V1::Suppliers", type: :request do
-  let!(:user) { User.create!(email: "admin@example.com", password: "Password123!", password_confirmation: "Password123!") }
+  let!(:user) { create(:user, email: "admin@example.com", password: "Password123!", password_confirmation: "Password123!") }
 
   def auth_headers
     post "/v1/auth/login", params: { email: user.email, password: "Password123!" }
@@ -11,7 +11,7 @@ RSpec.describe "V1::Suppliers", type: :request do
 
   describe "GET /v1/suppliers" do
     it "returns list" do
-      Supplier.create!(name: "Prov A", tax_id: "T1", email: "a@prov.com", phone: "1", created_by_user: user)
+      create(:supplier, name: "Prov A", tax_id: "T1", email: "a@prov.com", phone: "1", created_by_user: user)
       get "/v1/suppliers", headers: auth_headers
       expect(response).to have_http_status(:ok)
       data = JSON.parse(response.body)["data"]

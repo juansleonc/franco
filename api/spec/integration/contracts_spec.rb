@@ -1,7 +1,7 @@
 require 'swagger_helper'
 
 RSpec.describe 'v1/contracts', type: :request do
-  let!(:user) { User.create!(email: 'admin@example.com', password: 'Password123!', password_confirmation: 'Password123!') }
+  let!(:user) { create(:user, email: 'admin@example.com', password: 'Password123!', password_confirmation: 'Password123!') }
   let!(:auth) do
     post "/v1/auth/login", params: { email: user.email, password: 'Password123!' }
     token = JSON.parse(response.body)['token']
@@ -36,8 +36,8 @@ RSpec.describe 'v1/contracts', type: :request do
       response '201', 'created' do
         let(:'Authorization') { auth['Authorization'] }
         let(:contract) do
-          p = Property.create!(name: 'Casa', address: 'Calle 1')
-          t = Tenant.create!(full_name: 'Ana', email: 'ana@example.com')
+          p = create(:property, name: 'Casa', address: 'Calle 1')
+          t = create(:tenant, full_name: 'Ana', email: 'ana@example.com')
           { property_id: p.id, tenant_id: t.id, start_on: '2025-01-01', end_on: '2025-12-31', due_day: 5, monthly_rent: 1000 }
         end
         run_test!
