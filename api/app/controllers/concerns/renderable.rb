@@ -15,7 +15,7 @@ module Renderable
     render json: { data: serializer.new(resource) }, status: status
   end
 
-  def render_errors(errors, status: :unprocessable_entity)
+  def render_errors(errors, status: :unprocessable_content)
     render json: { errors: Array(errors) }, status: status
   end
 end

@@ -29,6 +29,6 @@ RSpec.describe 'V1::Contracts CRUD', type: :request do
 
   it 'returns 422 on invalid date range' do
     post '/v1/contracts', params: { contract: { property_id: property.id, tenant_id: tenant.id, start_on: '2025-01-01', end_on: '2024-12-31', due_day: 5, monthly_rent: 1000 } }, headers: auth_headers
-    expect(response).to have_http_status(:unprocessable_entity)
+    expect(response).to have_http_status(:unprocessable_content)
   end
 end

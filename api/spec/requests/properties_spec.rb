@@ -36,6 +36,14 @@ RSpec.describe 'V1::Properties', type: :request do
 
   it 'returns 422 on invalid create' do
     post '/v1/properties', params: { property: { address: 'Sin nombre' } }, headers: auth_headers
-    expect(response).to have_http_status(:unprocessable_entity)
+    expect(response).to have_http_status(:unprocessable_content)
+  end
+
+  it 'paginates index with meta' do
+    create(:property, name: 'X', address: 'A')
+    get '/v1/properties', headers: auth_headers
+    expect(response).to have_http_status(:ok)
+    body = JSON.parse(response.body)
+    expect(body['meta']).to include('page', 'pages', 'count')
   end
 end

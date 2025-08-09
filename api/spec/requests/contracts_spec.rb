@@ -19,6 +19,6 @@ RSpec.describe 'V1::Contracts', type: :request do
   it 'prevents overlapping contracts' do
     Contract.create!(property: property, tenant: tenant, start_on: '2025-01-01', end_on: '2025-12-31', due_day: 5, monthly_rent: 1000)
     post '/v1/contracts', params: { contract: { property_id: property.id, tenant_id: tenant.id, start_on: '2025-06-01', end_on: '2025-09-30', due_day: 5, monthly_rent: 1200 } }
-    expect(response).to have_http_status(:unprocessable_entity)
+    expect(response).to have_http_status(:unprocessable_content)
   end
 end

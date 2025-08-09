@@ -4,6 +4,7 @@ RSpec.describe 'v1/tenants', type: :request do
   let!(:user) { create(:user, email: 'admin@example.com', password: 'Password123!', password_confirmation: 'Password123!') }
   let!(:auth) do
     post "/v1/auth/login", params: { email: 'admin@example.com', password: 'Password123!' }
+    expect(response.content_type).to include('application/json')
     token = JSON.parse(response.body)['token']
     { 'Authorization' => "Bearer #{token}" }
   end

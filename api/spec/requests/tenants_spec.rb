@@ -36,6 +36,18 @@ RSpec.describe 'V1::Tenants', type: :request do
 
   it 'returns 422 on invalid create' do
     post '/v1/tenants', params: { tenant: { full_name: '' } }, headers: auth_headers
-    expect(response).to have_http_status(:unprocessable_entity)
+    expect(response).to have_http_status(:unprocessable_content)
+  end
+
+  it 'returns 422 on invalid update' do
+    post '/v1/tenants', params: { tenant: { full_name: 'Bad', email: 'bad@example.com' } }, headers: auth_headers
+    ten = JSON.parse(response.body)['data']
+    patch "/v1/tenants/#{ten['id']}", params: { tenant: { full_name: '' } }, headers: auth_headers
+    expect(response).to have_http_status(:unprocessable_content)
+  end
+
+  it 'requires authentication' do
+    get '/v1/tenants'
+    expect(response).to have_http_status(:unauthorized)
   end
 end
