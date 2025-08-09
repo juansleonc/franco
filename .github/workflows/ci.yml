@@ -1,0 +1,116 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  backend:
+    name: Rails API - Lint & Test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: franco_test
+        options: >-
+          --health-cmd "pg_isready -U postgres" \
+          --health-interval 10s \
+          --health-timeout 5s \
+          --health-retries 5
+        ports:
+          - 5432:5432
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping" \
+          --health-interval 10s \
+          --health-timeout 5s \
+          --health-retries 5
+        ports:
+          - 6379:6379
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+      - name: Install gems
+        run: bundle install --jobs 4 --retry 3
+      - name: RuboCop
+        run: bin/rubocop -f github
+      - name: DB prepare
+        env:
+          DB_HOST: 127.0.0.1
+          DB_USER: postgres
+          DB_PASSWORD: postgres
+          RAILS_ENV: test
+        run: bundle exec rails db:prepare
+      - name: RSpec
+        env:
+          DB_HOST: 127.0.0.1
+          DB_USER: postgres
+          DB_PASSWORD: postgres
+          RAILS_ENV: test
+        run: bundle exec rspec --format progress
+      - name: Generate OpenAPI (artifact)
+        if: ${{ always() }}
+        env:
+          DB_HOST: 127.0.0.1
+          DB_USER: postgres
+          DB_PASSWORD: postgres
+          RAILS_ENV: test
+        run: bundle exec rake rswag:specs:swaggerize
+      - name: Upload Swagger artifact
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: swagger-v1
+          path: api/swagger/v1/swagger.yaml
+
+  security:
+    name: Rails API - Security Scans
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+      - name: Brakeman
+        run: bin/brakeman --no-pager
+      - name: Bundler Audit
+        run: |
+          gem install bundler-audit -N
+          bundle audit check --update
+
+  mobile:
+    name: React Native App - Lint, Typecheck, Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: app/package-lock.json
+      - name: Install deps
+        run: npm ci
+      - name: ESLint
+        run: npm run lint --silent
+      - name: TypeScript
+        run: npm run typecheck --silent
+      - name: Jest
+        run: npm test -- --ci --runInBand
