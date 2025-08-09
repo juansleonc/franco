@@ -45,4 +45,15 @@ RSpec.describe 'V1::Dunning', type: :request do
     body = JSON.parse(response.body)
     expect(body['data']['enqueued']).to eq(1)
   end
+
+  it 'throttles frequent sends per tenant/channel' do
+    tenant = create(:tenant, email: 'a@x.com', phone: '+111')
+    contract = create(:contract, tenant: tenant)
+    inv = create(:invoice, tenant: tenant, contract: contract, balance_cents: 5000)
+    NotificationLog.create!(invoice: inv, tenant: tenant, channel: 'email', status: 'sent', sent_at: Time.current)
+    post '/v1/dunning/send_bulk', params: { invoice_ids: [inv.id], channels: %w[email] }, headers: auth_headers
+    expect(response).to have_http_status(:ok)
+    body = JSON.parse(response.body)
+    expect(body['data']['throttled']).to be >= 1
+  end
 end

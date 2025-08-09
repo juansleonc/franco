@@ -29,11 +29,21 @@ module V1
       authorize Invoice, :update?
       invoice_ids = Array(params[:invoice_ids])
       channels = Array(params[:channels]).presence || %w[email sms]
+      # Basic tenant-level throttling: max 1 job per tenant per 5 minutes per channel
+      throttled = 0
       enqueued = []
       invoice_ids.each do |id|
+        invoice = Invoice.find(id)
+        channels.each do |ch|
+          recent = NotificationLog.where(tenant_id: invoice.tenant_id, channel: ch).where('sent_at > ?', 5.minutes.ago)
+          if recent.exists?
+            throttled += 1
+            next
+          end
+        end
         enqueued << Dunning::SendNotificationsJob.perform_later(invoice_id: id, channels: channels)
       end
-      render json: { data: { enqueued: enqueued.size } }
+      render json: { data: { enqueued: enqueued.size, throttled: throttled } }
     end
   end
 end
