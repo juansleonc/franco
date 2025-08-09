@@ -6,7 +6,7 @@ module V1
       authorize Payment, :index?
       scope = Payment.order(received_on: :desc)
       pagy_obj, records = pagy(scope)
-      render json: { data: ActiveModelSerializers::SerializableResource.new(records, each_serializer: PaymentSerializer), pagy: pagy_metadata(pagy_obj) }
+      render_collection(records, serializer: PaymentSerializer, pagy: pagy_obj)
     end
 
     def create
@@ -15,7 +15,7 @@ module V1
       if payment.save
         render json: { data: PaymentSerializer.new(payment) }, status: :created
       else
-        render json: { errors: payment.errors.full_messages }, status: :unprocessable_entity
+        render_errors(payment.errors.full_messages)
       end
     end
 
@@ -31,7 +31,7 @@ module V1
       if payment.update(payment_params)
         render json: { data: PaymentSerializer.new(payment) }
       else
-        render json: { errors: payment.errors.full_messages }, status: :unprocessable_entity
+        render_errors(payment.errors.full_messages)
       end
     end
 
@@ -41,8 +41,6 @@ module V1
       params.require(:payment).permit(:tenant_id, :received_on, :amount_cents, :currency, :payment_method, :reference, :status)
     end
 
-    def pagy_metadata(pagy)
-      { page: pagy.page, items: pagy.items, pages: pagy.pages, count: pagy.count }
-    end
+    # metadata is provided by Renderable#render_collection
   end
 end

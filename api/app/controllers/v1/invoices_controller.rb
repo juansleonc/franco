@@ -6,7 +6,7 @@ module V1
       authorize Invoice, :index?
       scope = Invoice.order(issue_on: :desc)
       pagy_obj, records = pagy(scope)
-      render json: { data: ActiveModelSerializers::SerializableResource.new(records, each_serializer: InvoiceSerializer), pagy: pagy_metadata(pagy_obj) }
+      render_collection(records, serializer: InvoiceSerializer, pagy: pagy_obj)
     end
 
     def show
@@ -16,9 +16,6 @@ module V1
     end
 
     private
-
-    def pagy_metadata(pagy)
-      { page: pagy.page, items: pagy.items, pages: pagy.pages, count: pagy.count }
-    end
+    # metadata is provided by Renderable#render_collection
   end
 end
