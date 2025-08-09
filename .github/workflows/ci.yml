@@ -5,6 +5,12 @@ on:
   push:
     branches: [ main ]
 
+# Grant write permissions for PR comment actions (coverage, Danger)
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
 jobs:
   meta-lint:
     name: Repository Meta Lint (MD/YAML/JSON)
