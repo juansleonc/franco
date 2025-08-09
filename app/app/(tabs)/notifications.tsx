@@ -2,43 +2,38 @@ import React, { useState } from 'react';
 import { View, Button, TextInput, FlatList, StyleSheet, Alert } from 'react-native';
 import { Text } from '@/components/Themed';
 import { apiRequest } from '@/lib/api';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
 type Log = { id: string; invoice_id: string; tenant_id: string; channel: string; status: string; error?: string; sent_at: string };
 
 export default function NotificationsScreen() {
   const [to, setTo] = useState('test@example.com');
   const [phone, setPhone] = useState('+123456');
-  const [logs, setLogs] = useState<Log[]>([]);
-
-  const sendEmail = async () => {
-    try {
-      await apiRequest('/v1/notifications/send_test', { method: 'POST', body: { to, subject: 'Hi', body: 'Hello' } });
-      Alert.alert('Email sent');
-    } catch (e: any) { Alert.alert('Error', e.message); }
-  };
-  const sendSms = async () => {
-    try {
-      await apiRequest('/v1/notifications/send_test_sms', { method: 'POST', body: { to: phone, body: 'Test SMS' } });
-      Alert.alert('SMS sent');
-    } catch (e: any) { Alert.alert('Error', e.message); }
-  };
-  const fetchLogs = async () => {
-    try {
-      const res = await apiRequest<{ data: Log[] }>('/v1/notifications/logs?limit=50');
-      setLogs(res.data);
-    } catch (e: any) { Alert.alert('Error', e.message); }
-  };
+  const logsQuery = useQuery({
+    queryKey: ['notificationLogs'],
+    queryFn: async () => (await apiRequest<{ data: Log[] }>('/v1/notifications/logs?limit=50')).data,
+  });
+  const sendEmail = useMutation({
+    mutationFn: async () => apiRequest('/v1/notifications/send_test', { method: 'POST', body: { to, subject: 'Hi', body: 'Hello' } }),
+    onSuccess: () => Alert.alert('Email sent'),
+    onError: (e: any) => Alert.alert('Error', e.message),
+  });
+  const sendSms = useMutation({
+    mutationFn: async () => apiRequest('/v1/notifications/send_test_sms', { method: 'POST', body: { to: phone, body: 'Test SMS' } }),
+    onSuccess: () => Alert.alert('SMS sent'),
+    onError: (e: any) => Alert.alert('Error', e.message),
+  });
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Notifications</Text>
       <TextInput style={styles.input} value={to} onChangeText={setTo} placeholder="Email" />
-      <Button title="Send test email" onPress={sendEmail} />
+      <Button title={sendEmail.isPending ? 'Sending...' : 'Send test email'} onPress={() => sendEmail.mutate()} />
       <TextInput style={styles.input} value={phone} onChangeText={setPhone} placeholder="Phone" />
-      <Button title="Send test SMS" onPress={sendSms} />
-      <Button title="Fetch logs" onPress={fetchLogs} />
+      <Button title={sendSms.isPending ? 'Sending...' : 'Send test SMS'} onPress={() => sendSms.mutate()} />
+      <Button title={logsQuery.isPending ? 'Loading logs...' : 'Refresh logs'} onPress={() => logsQuery.refetch()} />
       <FlatList
-        data={logs}
+        data={logsQuery.data || []}
         keyExtractor={(i) => i.id}
         renderItem={({ item }) => (
           <View style={styles.row}>

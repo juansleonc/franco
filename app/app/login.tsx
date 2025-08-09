@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import { Text } from '@/components/Themed';
-import { login } from '@/lib/api';
+import { login, logout } from '@/lib/api';
 import { useRouter } from 'expo-router';
 
 export default function LoginScreen() {
@@ -40,6 +40,7 @@ export default function LoginScreen() {
         onChangeText={setPassword}
       />
       <Button title={loading ? 'Logging in...' : 'Login'} onPress={onLogin} disabled={loading} />
+      <Button title="Logout (clear token)" onPress={async () => { await logout(); }} />
     </View>
   );
 }
