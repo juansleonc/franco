@@ -45,7 +45,7 @@ module V1
       current = start_on
       months.times do
         month_start = Date.new(current.year, current.month, 1)
-        day = [ due_day, 28 ].min
+        day = [due_day, 28].min
         due_date = Date.new(month_start.year, month_start.month, day)
         due_date += 1.month if due_date < current
         schedule << { due_on: due_date }

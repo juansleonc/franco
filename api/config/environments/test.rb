@@ -3,7 +3,7 @@ require "active_support/core_ext/integer/time"
 Rails.application.configure do
   # Disable host authorization in test to avoid blocked host errors
   config.middleware.delete(ActionDispatch::HostAuthorization)
-  config.hosts = [ "www.example.com", "example.org", "localhost", "127.0.0.1" ]
+  config.hosts = ["www.example.com", "example.org", "localhost", "127.0.0.1"]
 
   # Settings specified here will take precedence over those in config/application.rb.
   config.cache_classes = true
